@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Spinner from '@/components/ui/spinner';
 
-const reports = {
+const reports: Record<'player' | 'coach' | 'nbl' | 'admin', { id: string; title: string; description: string }[]> = {
   player: [
     { id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' },
   ],
@@ -28,7 +28,7 @@ const reports = {
 export default function Home() {
   const { instance, accounts } = useMsal();
   const router = useRouter();
-  const [userGroup, setUserGroup] = useState<string | null>(null);
+  const [userGroup, setUserGroup] = useState<'player' | 'coach' | 'nbl' | 'admin' | null>(null);
 
   if (!accounts.length || !userGroup) return <Spinner />;
 
