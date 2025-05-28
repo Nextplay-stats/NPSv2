@@ -10,18 +10,17 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('Checking login status...');
-    // Handle redirect response once after redirect back from Azure AD
+    // Handle redirect response from MSAL
     instance.handleRedirectPromise()
       .then((response) => {
         if (response) {
-          console.log('Redirect response:', response);
-          // Redirect to dashboard on successful login
+          // Successful login from redirect
           router.replace('/dashboard');
-        } else if (accounts.length) {
-          console.log('Already logged in, redirecting...');
+        } else if (accounts.length > 0) {
+          // Already logged in - redirect right away
           router.replace('/dashboard');
         } else {
+          // Not logged in yet, show login button
           setLoading(false);
         }
       })
@@ -32,14 +31,10 @@ export default function LoginPage() {
   }, [instance, accounts, router]);
 
   const handleLogin = () => {
-    instance.loginRedirect().catch((error) => {
-      console.error('Login redirect failed:', error);
-    });
+    instance.loginRedirect();
   };
 
-  if (loading) {
-    return <Spinner />;
-  }
+  if (loading) return <Spinner />;
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-[#22967a] to-[#154d42] text-white">
