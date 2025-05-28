@@ -9,16 +9,17 @@ const PowerBIEmbed = dynamic(
   { ssr: false }
 );
 
+import type { IEmbedConfiguration } from 'powerbi-client';
+
 export default function ReportPage() {
   const { instance, accounts } = useMsal();
   const router = useRouter();
   const { id } = router.query;
 
-  const [embedConfig, setEmbedConfig] = useState(null);
+  const [embedConfig, setEmbedConfig] = useState<IEmbedConfiguration | null>(null);
   const [models, setModels] = useState<any>(null);
 
   useEffect(() => {
-    // Dynamically import 'models' only on client side
     import('powerbi-client').then(mod => {
       setModels(mod.models);
     });
