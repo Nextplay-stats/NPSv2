@@ -48,10 +48,10 @@ useEffect(() => {
 
   // Map Azure AD group object IDs to friendly names
   const groupMap: Record<string, Group> = {
-    '8c8efabc-0000-4f11-aaaa-65b2bdeafcd1': 'Admin',
-    'c7e21bbf-98b4-422e-9435-3eb3baf14f45': 'NBL',
-    'abc12345-def6-7890-gh12-ijklmnopqrst': 'Coach',
-    'xyz54321-def6-7890-gh12-qrstuvwxabcd': 'Players',
+    '0c3a5074-675c-4441-b665-3709f2e389e3': 'Admin',
+    'a0b86c5d-544e-4a0d-a10c-b16eac07cf00': 'NBL',
+    '92eee0d9-de17-4056-8720-478601a22de1': 'Coach',
+    'bb89a797-92d2-4f1c-be21-8ba5200b427c': 'Players',
   };
 
   const matchedGroup = groups.map((id) => groupMap[id]).find(Boolean);
