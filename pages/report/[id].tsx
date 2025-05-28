@@ -4,6 +4,11 @@ import { useEffect } from 'react';
 import { PowerBIEmbed } from 'powerbi-client-react';
 import { models } from 'powerbi-client';
 import { Button } from '@/components/ui/button';
+import Spinner from '@/components/ui/spinner';
+
+// Inside the component:
+if (!accounts.length || !id) return <Spinner />;
+
 
 export default function ReportPage() {
   const router = useRouter();
