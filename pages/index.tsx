@@ -2,6 +2,10 @@ import { useRouter } from 'next/router';
 import { useMsal } from '@azure/msal-react';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
+import Spinner from '@/components/ui/spinner';
+
+// Inside the component:
+if (!accounts.length || !userGroup) return <Spinner />;
 
 const reports = {
   player: [
