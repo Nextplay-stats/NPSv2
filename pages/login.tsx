@@ -13,13 +13,14 @@ useEffect(() => {
   instance.handleRedirectPromise()
     .then((response) => {
       console.log('handleRedirectPromise response:', response);
-      console.log('Accounts after redirect:', instance.getAllAccounts());
+      const accounts = instance.getAllAccounts();
+      console.log('Current accounts:', accounts);
 
-      // If login successful OR there is already an account, redirect
-      if (response || instance.getAllAccounts().length > 0) {
+      if (response || accounts.length > 0) {
+        console.log('Redirecting to dashboard...');
         router.replace('/dashboard');
       } else {
-        setLoading(false); // Show login button
+        setLoading(false);
       }
     })
     .catch((e) => {
@@ -27,6 +28,7 @@ useEffect(() => {
       setLoading(false);
     });
 }, [instance, router]);
+
 
 const handleLogin = () => {
   instance.loginRedirect();
