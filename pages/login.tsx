@@ -12,15 +12,15 @@ export default function LoginPage() {
   useEffect(() => {
     instance.handleRedirectPromise()
       .then((response) => {
-        const accounts = instance.getAllAccounts();
-        if (response || accounts.length > 0) {
+        // If login successful OR there is already an account, redirect
+        if (response || instance.getAllAccounts().length > 0) {
           router.replace('/dashboard');
         } else {
-          setLoading(false);
+          setLoading(false); // Show login button
         }
       })
-      .catch((error) => {
-        console.error('Login error:', error);
+      .catch((e) => {
+        console.error('handleRedirectPromise error:', e);
         setLoading(false);
       });
   }, [instance, router]);
