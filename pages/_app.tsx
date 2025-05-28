@@ -8,9 +8,10 @@ const msalConfig = {
   auth: {
     clientId: process.env.NEXT_PUBLIC_CLIENT_ID || '',
     authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_TENANT_ID}`,
-    redirectUri: '/', // or your deployed app URL if needed
+    redirectUri: process.env.NEXT_PUBLIC_REDIRECT_URI || 'http://localhost:3000', 
   },
 };
+
 
 const msalInstance = new PublicClientApplication(msalConfig);
 
