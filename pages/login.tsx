@@ -10,25 +10,31 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Handle redirect response once
-    instance.handleRedirectPromise().then((response) => {
-      if (response) {
-        // Redirect to dashboard on successful login
-        router.replace('/dashboard');
-      } else if (accounts.length) {
-        // If already logged in, go to dashboard
-        router.replace('/dashboard');
-      } else {
+    console.log('Checking login status...');
+    // Handle redirect response once after redirect back from Azure AD
+    instance.handleRedirectPromise()
+      .then((response) => {
+        if (response) {
+          console.log('Redirect response:', response);
+          // Redirect to dashboard on successful login
+          router.replace('/dashboard');
+        } else if (accounts.length) {
+          console.log('Already logged in, redirecting...');
+          router.replace('/dashboard');
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error('Login redirect error:', error);
         setLoading(false);
-      }
-    }).catch((error) => {
-      console.error('Login redirect error:', error);
-      setLoading(false);
-    });
+      });
   }, [instance, accounts, router]);
 
   const handleLogin = () => {
-    instance.loginRedirect();
+    instance.loginRedirect().catch((error) => {
+      console.error('Login redirect failed:', error);
+    });
   };
 
   if (loading) {
