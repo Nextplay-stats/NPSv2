@@ -12,27 +12,21 @@ export default function LoginPage() {
   useEffect(() => {
     instance.handleRedirectPromise()
       .then((response) => {
-        console.log('handleRedirectPromise response:', response);
-        console.log('Current accounts:', instance.getAllAccounts());
-
-        if (response) {
-          router.replace('/dashboard');
-        } else if (instance.getAllAccounts().length > 0) {
+        const accounts = instance.getAllAccounts();
+        if (response || accounts.length > 0) {
           router.replace('/dashboard');
         } else {
           setLoading(false);
         }
       })
       .catch((error) => {
-        console.error('Login redirect error:', error);
+        console.error('Login error:', error);
         setLoading(false);
       });
   }, [instance, router]);
 
   const handleLogin = () => {
     instance.loginRedirect();
-    // or use loginPopup() for easier debugging
-    // instance.loginPopup().then(() => router.replace('/dashboard'));
   };
 
   if (loading) return <Spinner />;
@@ -48,4 +42,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
