@@ -7,7 +7,7 @@ const msalConfig = {
   auth: {
     clientId: process.env.NEXT_PUBLIC_CLIENT_ID || '',
     authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_TENANT_ID}`,
-    redirectUri: process.env.NEXT_PUBLIC_REDIRECT_URI || 'https://zealous-sky-0785c6503.6.azurestaticapps.net/login',
+    redirectUri: process.env.NEXT_PUBLIC_REDIRECT_URI || 'https://zealous-sky-0785c6503.6.azurestaticapps.net/dashboard',
   },
 };
 
