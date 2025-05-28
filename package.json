@@ -1,0 +1,24 @@
+{
+  "name": "powerbi-dashboard-site",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@azure/msal-browser": "^3.0.0",
+    "@azure/msal-react": "^2.0.0",
+    "next": "13.4.0",
+    "powerbi-client": "^2.20.0",
+    "powerbi-client-react": "^2.0.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.2.0",
+    "typescript": "^4.9.0"
+  }
+}
