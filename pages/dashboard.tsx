@@ -30,42 +30,41 @@ export default function Dashboard() {
   type Group = 'Players' | 'Coach' | 'NBL' | 'Admin' | null;
   const [userGroup, setUserGroup] = useState<Group>(null);
 
-useEffect(() => {
-  const currentAccounts = instance.getAllAccounts();
+  useEffect(() => {
+    const currentAccounts = instance.getAllAccounts();
 
-  if (!currentAccounts.length) {
-    router.replace('/login');
-    return;
-  }
+    if (!currentAccounts.length) {
+      router.replace('/login');
+      return;
+    }
 
-  const idToken = currentAccounts[0]?.idTokenClaims;
-  const groups: string[] =
-    idToken && 'groups' in idToken && Array.isArray((idToken as any).groups)
-      ? (idToken as any).groups
-      : [];
+    const idToken = currentAccounts[0]?.idTokenClaims;
+    const groups: string[] =
+      idToken && 'groups' in idToken && Array.isArray((idToken as any).groups)
+        ? (idToken as any).groups
+        : [];
 
-  console.log('Dashboard → raw group claims:', groups);
+    console.log('Dashboard → raw group claims:', groups);
 
-  // Map Azure AD group object IDs to friendly names
-  const groupMap: Record<string, Group> = {
-    '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': 'Admin',
-    'f997e7e8-1542-49d1-a140-74873fd7d209': 'NBL',
-    '3015ed3e-0eca-4d1d-984d-51e0075bb219': 'Coach',
-    '7b72d962-8338-4081-895d-4c460e6bf59c': 'Players',
-  };
+    // Map Azure AD group object IDs to friendly names
+    const groupMap: Record<string, Group> = {
+      '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': 'Admin',
+      'f997e7e8-1542-49d1-a140-74873fd7d209': 'NBL',
+      '3015ed3e-0eca-4d1d-984d-51e0075bb219': 'Coach',
+      '7b72d962-8338-4081-895d-4c460e6bf59c': 'Players',
+    };
 
-  const matchedGroup = groups.map((id) => groupMap[id]).find(Boolean);
+    const matchedGroup = groups.map((id) => groupMap[id]).find(Boolean);
 
-  if (matchedGroup) {
-    console.log('Dashboard → Matched user group:', matchedGroup);
-    setUserGroup(matchedGroup);
-  } else {
-    console.warn('Dashboard → No valid group matched:', groups);
-    // Optionally redirect:
-    // router.replace('/unauthorized');
-  }
-}, [instance, router]);
-
+    if (matchedGroup) {
+      console.log('Dashboard → Matched user group:', matchedGroup);
+      setUserGroup(matchedGroup);
+    } else {
+      console.warn('Dashboard → No valid group matched:', groups);
+      // Optionally redirect to unauthorized page
+      // router.replace('/unauthorized');
+    }
+  }, [instance, router]);
 
   if (!accounts.length || !userGroup) return <Spinner />;
 
@@ -93,4 +92,3 @@ useEffect(() => {
     </div>
   );
 }
-
