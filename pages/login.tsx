@@ -9,25 +9,29 @@ export default function LoginPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    instance.handleRedirectPromise()
-      .then((response) => {
-        // If login successful OR there is already an account, redirect
-        if (response || instance.getAllAccounts().length > 0) {
-          router.replace('/dashboard');
-        } else {
-          setLoading(false); // Show login button
-        }
-      })
-      .catch((e) => {
-        console.error('handleRedirectPromise error:', e);
-        setLoading(false);
-      });
-  }, [instance, router]);
+useEffect(() => {
+  instance.handleRedirectPromise()
+    .then((response) => {
+      console.log('handleRedirectPromise response:', response);
+      console.log('Accounts after redirect:', instance.getAllAccounts());
 
-  const handleLogin = () => {
-    instance.loginRedirect();
-  };
+      // If login successful OR there is already an account, redirect
+      if (response || instance.getAllAccounts().length > 0) {
+        router.replace('/dashboard');
+      } else {
+        setLoading(false); // Show login button
+      }
+    })
+    .catch((e) => {
+      console.error('handleRedirectPromise error:', e);
+      setLoading(false);
+    });
+}, [instance, router]);
+
+const handleLogin = () => {
+  instance.loginRedirect();
+};
+
 
   if (loading) return <Spinner />;
 
