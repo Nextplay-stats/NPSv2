@@ -1,13 +1,11 @@
 import { useRouter } from 'next/router';
 import { useMsal } from '@azure/msal-react';
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import Spinner from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 
-const reports: Record<'Players' | 'Coach' | 'NBL' | 'Admin', { id: string; title: string; description: string }[]> = {
-  Players: [
-    { id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' },
-  ],
+const reports = {
+  Players: [{ id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' }],
   Coach: [
     { id: 'teamComparison', title: 'Team Comparison', description: 'Compare teams across seasons.' },
     { id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' },
@@ -25,37 +23,31 @@ const reports: Record<'Players' | 'Coach' | 'NBL' | 'Admin', { id: string; title
   ],
 };
 
-const groupMap: Record<string, 'Players' | 'Coach' | 'NBL' | 'Admin'> = {
-  'GUID_FOR_ADMIN_GROUP': 'Admin',
-  'GUID_FOR_NBL_GROUP': 'NBL',
-  'GUID_FOR_COACH_GROUP': 'Coach',
-  'GUID_FOR_PLAYERS_GROUP': 'Players',
-};
-
 export default function Dashboard() {
   const { instance, accounts } = useMsal();
   const router = useRouter();
-  const [userGroup, setUserGroup] = useState<'Players' | 'Coach' | 'NBL' | 'Admin' | null>(null);
+  const [userGroup, setUserGroup] = useState(null);
 
   useEffect(() => {
-    if (!accounts.length) {
-      instance.loginRedirect();
+    const currentAccounts = instance.getAllAccounts();
+
+    if (!currentAccounts.length) {
+      router.replace('/login');
       return;
     }
 
-    const idToken = accounts[0]?.idTokenClaims;
-    const groups: string[] = Array.isArray((idToken as any)?.groups) ? (idToken as any).groups : [];
+    const idToken = currentAccounts[0]?.idTokenClaims;
+    const groups = Array.isArray(idToken?.groups) ? idToken.groups : [];
 
-    // Map group GUIDs to friendly names
-    const foundGroupGuid = groups.find(guid => groupMap[guid]);
-    if (foundGroupGuid) {
-      setUserGroup(groupMap[foundGroupGuid]);
-    } else {
-      console.warn('No matching user group found in token groups:', groups);
-      // Optionally handle users not in any group
-      setUserGroup(null);
+    if (groups.includes('Admin')) setUserGroup('Admin');
+    else if (groups.includes('NBL')) setUserGroup('NBL');
+    else if (groups.includes('Coach')) setUserGroup('Coach');
+    else if (groups.includes('Players')) setUserGroup('Players');
+    else {
+      console.warn('No valid group found:', groups);
+      // Optional: router.replace('/unauthorized');
     }
-  }, [accounts, instance]);
+  }, [instance, router]);
 
   if (!accounts.length || !userGroup) return <Spinner />;
 
@@ -63,7 +55,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-down p-6 text-white">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-white"></div>
+          <div className="w-10 h-10 rounded-full bg-white" />
           <h1 className="text-2xl font-bold">Basketball Dashboard</h1>
         </div>
         <Button onClick={() => instance.logoutRedirect()}>Logout</Button>
