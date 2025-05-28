@@ -1,9 +1,15 @@
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import { useMsal } from '@azure/msal-react';
 import { useEffect, useState } from 'react';
 import Spinner from '@/components/ui/spinner';
-import { PowerBIEmbed } from 'powerbi-client-react';
 import { models } from 'powerbi-client';
+
+// Dynamically import PowerBIEmbed, disabling SSR
+const PowerBIEmbed = dynamic(
+  () => import('powerbi-client-react').then(mod => mod.PowerBIEmbed),
+  { ssr: false }
+);
 
 export default function ReportPage() {
   const { instance, accounts } = useMsal();
@@ -15,29 +21,34 @@ export default function ReportPage() {
   useEffect(() => {
     if (!accounts.length || !id) return;
 
-    // Fetch or construct your embed config here
-    const fetchConfig = async () => {
-      const token = await instance.acquireTokenSilent({
-        scopes: ['https://analysis.windows.net/powerbi/api/.default'],
-        account: accounts[0],
-      });
+    const fetchEmbedConfig = async () => {
+      try {
+        const response = await instance.acquireTokenSilent({
+          scopes: ['https://analysis.windows.net/powerbi/api/.default'],
+          account: accounts[0],
+        });
 
-      const config = {
-        type: 'report',
-        id: id as string,
-        embedUrl: `https://app.powerbi.com/reportEmbed?reportId=${id}`,
-        accessToken: token.accessToken,
-        tokenType: models.TokenType.Aad,
-        settings: {
-          panes: { filters: { visible: false }, pageNavigation: { visible: false } },
-          navContentPaneEnabled: false,
-        },
-      };
-
-      setEmbedConfig(config);
+        setEmbedConfig({
+          type: 'report',
+          id: id as string,
+          embedUrl: `https://app.powerbi.com/reportEmbed?reportId=${id}`,
+          accessToken: response.accessToken,
+          tokenType: models.TokenType.Aad,
+          settings: {
+            panes: {
+              filters: { visible: false },
+              pageNavigation: { visible: false },
+            },
+            navContentPaneEnabled: false,
+          },
+        });
+      } catch (error) {
+        console.error('Failed to get embed token', error);
+        // Optionally handle error (redirect or show message)
+      }
     };
 
-    fetchConfig();
+    fetchEmbedConfig();
   }, [accounts, id, instance]);
 
   if (!accounts.length || !id || !embedConfig) {
@@ -56,3 +67,4 @@ export default function ReportPage() {
     </div>
   );
 }
+
