@@ -26,7 +26,10 @@ const reports = {
 export default function Dashboard() {
   const { instance, accounts } = useMsal();
   const router = useRouter();
-  const [userGroup, setUserGroup] = useState(null);
+
+  type Group = 'Players' | 'Coach' | 'NBL' | 'Admin' | null;
+  const [userGroup, setUserGroup] = useState<Group>(null);
+
 
   useEffect(() => {
     const currentAccounts = instance.getAllAccounts();
