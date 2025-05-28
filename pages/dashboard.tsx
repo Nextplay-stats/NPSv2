@@ -4,20 +4,20 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Spinner from '@/components/ui/spinner';
 
-const reports: Record<'player' | 'coach' | 'nbl' | 'admin', { id: string; title: string; description: string }[]> = {
-  player: [
+const reports: Record<'Players' | 'Coach' | 'NBL' | 'Admin', { id: string; title: string; description: string }[]> = {
+  Players: [
     { id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' },
   ],
-  coach: [
+  Coach: [
     { id: 'teamComparison', title: 'Team Comparison', description: 'Compare teams across seasons.' },
     { id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' },
   ],
-  nbl: [
+  NBL: [
     { id: 'nblOverview', title: 'NBL Overview', description: 'League-wide stats and metrics.' },
     { id: 'teamComparison', title: 'Team Comparison', description: 'Compare teams across seasons.' },
     { id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' },
   ],
-  admin: [
+  Admin: [
     { id: 'adminPanel', title: 'Admin Panel', description: 'System-wide administrative tools.' },
     { id: 'nblOverview', title: 'NBL Overview', description: 'League-wide stats and metrics.' },
     { id: 'teamComparison', title: 'Team Comparison', description: 'Compare teams across seasons.' },
@@ -28,7 +28,7 @@ const reports: Record<'player' | 'coach' | 'nbl' | 'admin', { id: string; title:
 export default function Home() {
   const { instance, accounts } = useMsal();
   const router = useRouter();
-  const [userGroup, setUserGroup] = useState<'player' | 'coach' | 'nbl' | 'admin' | null>(null);
+  const [userGroup, setUserGroup] = useState<'Players' | 'Coach' | 'NBL' | 'Admin' | null>(null);
 
   if (!accounts.length || !userGroup) return <Spinner />;
 
@@ -42,10 +42,10 @@ export default function Home() {
           ? (idToken as any).groups
           : [];
 
-      if (groups.includes('admin')) setUserGroup('admin');
-      else if (groups.includes('nbl')) setUserGroup('nbl');
-      else if (groups.includes('coach')) setUserGroup('coach');
-      else if (groups.includes('player')) setUserGroup('player');
+      if (groups.includes('Admin')) setUserGroup('Admin');
+      else if (groups.includes('NBL')) setUserGroup('NBL');
+      else if (groups.includes('Coach')) setUserGroup('Coach');
+      else if (groups.includes('Players')) setUserGroup('Players');
     }
   }, [accounts, instance]);
 
