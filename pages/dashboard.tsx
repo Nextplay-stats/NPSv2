@@ -37,7 +37,8 @@ export default function Home() {
       instance.loginRedirect();
     } else {
       const idToken = accounts[0]?.idTokenClaims;
-      const groups: string[] = idToken?.groups || [];
+      const groups = Array.isArray(idToken?.groups) ? idToken.groups as string[] : [];
+
 
       if (groups.includes('admin')) setUserGroup('admin');
       else if (groups.includes('nbl')) setUserGroup('nbl');
