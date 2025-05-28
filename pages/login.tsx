@@ -12,23 +12,24 @@ export default function LoginPage() {
   useEffect(() => {
     instance.handleRedirectPromise()
       .then((response) => {
-        console.log('handleRedirectPromise response:', response);
         const accounts = instance.getAllAccounts();
-        console.log('Accounts after redirect:', accounts);
+        console.log('LoginPage → handleRedirectPromise:', response);
+        console.log('LoginPage → Accounts after login:', accounts);
 
         if (response || accounts.length > 0) {
           router.replace('/dashboard');
         } else {
-          setLoading(false);
+          setLoading(false); // Show login button
         }
       })
-      .catch((error) => {
-        console.error('Login redirect error:', error);
+      .catch((e) => {
+        console.error('LoginPage → Error during handleRedirectPromise:', e);
         setLoading(false);
       });
   }, [instance, router]);
 
   const handleLogin = () => {
+    console.log('LoginPage → Redirecting...');
     instance.loginRedirect();
   };
 
