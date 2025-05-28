@@ -1,49 +1,57 @@
 import { useRouter } from 'next/router';
 import { useMsal } from '@azure/msal-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import Spinner from '@/components/ui/spinner';
 import { PowerBIEmbed } from 'powerbi-client-react';
 import { models } from 'powerbi-client';
-import { Button } from '@/components/ui/button';
-import Spinner from '@/components/ui/spinner';
-
-// Inside the component:
-if (!accounts.length || !id) return <Spinner />;
-
 
 export default function ReportPage() {
+  const { instance, accounts } = useMsal();
   const router = useRouter();
   const { id } = router.query;
-  const { instance, accounts } = useMsal();
+
+  const [embedConfig, setEmbedConfig] = useState<any>(null);
 
   useEffect(() => {
-    if (!accounts.length) {
-      instance.loginRedirect();
-    }
-  }, [accounts, instance]);
+    if (!accounts.length || !id) return;
 
-  if (!accounts.length || !id) return null;
+    // Fetch or construct your embed config here
+    const fetchConfig = async () => {
+      const token = await instance.acquireTokenSilent({
+        scopes: ['https://analysis.windows.net/powerbi/api/.default'],
+        account: accounts[0],
+      });
 
-  const embedConfig = {
-    type: 'report',
-    id: 'ACTUAL_REPORT_ID',
-    embedUrl: 'https://app.powerbi.com/reportEmbed?reportId=ACTUAL_REPORT_ID&groupId=WORKSPACE_ID',
-    accessToken: 'EMBED_TOKEN',
-    tokenType: models.TokenType.Embed,
-  };
+      const config = {
+        type: 'report',
+        id: id as string,
+        embedUrl: `https://app.powerbi.com/reportEmbed?reportId=${id}`,
+        accessToken: token.accessToken,
+        tokenType: models.TokenType.Aad,
+        settings: {
+          panes: { filters: { visible: false }, pageNavigation: { visible: false } },
+          navContentPaneEnabled: false,
+        },
+      };
+
+      setEmbedConfig(config);
+    };
+
+    fetchConfig();
+  }, [accounts, id, instance]);
+
+  if (!accounts.length || !id || !embedConfig) {
+    return <Spinner />;
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-down p-4 text-white">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold capitalize">Report: {id}</h1>
-        <Button onClick={() => instance.logoutRedirect()}>Logout</Button>
-      </div>
+    <div className="h-screen w-screen">
       <PowerBIEmbed
         embedConfig={embedConfig}
-        cssClassName="w-full h-[80vh]"
-        eventHandlers={new Map([
-          ['loaded', () => console.log('Report loaded')],
-          ['error', (event) => console.error(event.detail)],
-        ])}
+        cssClassName="report-style-class"
+        getEmbeddedComponent={(embeddedReport) => {
+          console.log('Report embedded:', embeddedReport);
+        }}
       />
     </div>
   );
