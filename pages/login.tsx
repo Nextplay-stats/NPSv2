@@ -10,23 +10,29 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    instance.handleRedirectPromise()
-      .then((response) => {
-        const accounts = instance.getAllAccounts();
-        console.log('LoginPage → handleRedirectPromise:', response);
-        console.log('LoginPage → Accounts after login:', accounts);
+  const init = async () => {
+    try {
+      console.log('LoginPage → calling handleRedirectPromise...');
+      await instance.initialize(); // ✅ Ensure MSAL is initialized
+      const response = await instance.handleRedirectPromise();
 
-        if (response || accounts.length > 0) {
-          router.replace('/dashboard');
-        } else {
-          setLoading(false); // Show login button
-        }
-      })
-      .catch((e) => {
-        console.error('LoginPage → Error during handleRedirectPromise:', e);
+      console.log('handleRedirectPromise response:', response);
+      console.log('Current accounts:', instance.getAllAccounts());
+
+      if (response || instance.getAllAccounts().length > 0) {
+        router.replace('/dashboard');
+      } else {
         setLoading(false);
-      });
-  }, [instance, router]);
+      }
+    } catch (error) {
+      console.error('LoginPage → Error during handleRedirectPromise:', error);
+      setLoading(false);
+    }
+  };
+
+  init();
+}, [instance, router]);
+
 
   const handleLogin = () => {
     console.log('LoginPage → Redirecting...');
