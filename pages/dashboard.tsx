@@ -4,9 +4,6 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Spinner from '@/components/ui/spinner';
 
-// Inside the component:
-if (!accounts.length || !userGroup) return <Spinner />;
-
 const reports = {
   player: [
     { id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' },
@@ -32,6 +29,8 @@ export default function Home() {
   const { instance, accounts } = useMsal();
   const router = useRouter();
   const [userGroup, setUserGroup] = useState<string | null>(null);
+
+  if (!accounts.length || !userGroup) return <Spinner />;
 
   useEffect(() => {
     if (!accounts.length) {
