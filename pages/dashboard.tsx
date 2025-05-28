@@ -30,24 +30,40 @@ export default function Dashboard() {
   type Group = 'Players' | 'Coach' | 'NBL' | 'Admin' | null;
   const [userGroup, setUserGroup] = useState<Group>(null);
 
-  useEffect(() => {
-    const currentAccounts = instance.getAllAccounts();
-    console.log('Dashboard: currentAccounts:', currentAccounts);
+ useEffect(() => {
+  const currentAccounts = instance.getAllAccounts();
+  console.log('Dashboard: currentAccounts:', currentAccounts);
 
-    if (!currentAccounts.length) {
-      console.log('No accounts found, redirecting to /login');
-      router.replace('/login');
-      return;
-    }
+  if (!currentAccounts.length) {
+    console.log('No accounts found, redirecting to /login');
+    router.replace('/login');
+    return;
+  }
 
-    const idToken = currentAccounts[0]?.idTokenClaims;
-    console.log('Dashboard: idTokenClaims:', idToken);
+  const idToken = currentAccounts[0]?.idTokenClaims;
+  console.log('Dashboard: idTokenClaims:', idToken);
 
-    const groups: string[] =
-      idToken && 'groups' in idToken && Array.isArray((idToken as any).groups)
-        ? (idToken as any).groups
-        : [];
+  const groups: string[] =
+    idToken && 'groups' in idToken && Array.isArray((idToken as any).groups)
+      ? (idToken as any).groups
+      : [];
 
-    console.log('Dashboard: user groups:', groups);
+  console.log('Dashboard: user groups:', groups);
 
-    if (groups.includes(
+  if (groups.includes('Admin')) {
+    setUserGroup('Admin');
+    console.log('User group set to Admin');
+  } else if (groups.includes('NBL')) {
+    setUserGroup('NBL');
+    console.log('User group set to NBL');
+  } else if (groups.includes('Coach')) {
+    setUserGroup('Coach');
+    console.log('User group set to Coach');
+  } else if (groups.includes('Players')) {
+    setUserGroup('Players');
+    console.log('User group set to Players');
+  } else {
+    console.warn('No valid group found:', groups);
+    // Optional: router.replace('/unauthorized');
+  }
+}, [instance, router]);
