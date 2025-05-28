@@ -3,9 +3,7 @@ import { useRouter } from 'next/router';
 import { useMsal } from '@azure/msal-react';
 import { useEffect, useState } from 'react';
 import Spinner from '@/components/ui/spinner';
-import { models } from 'powerbi-client';
 
-// Dynamically import PowerBIEmbed, disabling SSR
 const PowerBIEmbed = dynamic(
   () => import('powerbi-client-react').then(mod => mod.PowerBIEmbed),
   { ssr: false }
@@ -16,10 +14,18 @@ export default function ReportPage() {
   const router = useRouter();
   const { id } = router.query;
 
-  const [embedConfig, setEmbedConfig] = useState<any>(null);
+  const [embedConfig, setEmbedConfig] = useState(null);
+  const [models, setModels] = useState<any>(null);
 
   useEffect(() => {
-    if (!accounts.length || !id) return;
+    // Dynamically import 'models' only on client side
+    import('powerbi-client').then(mod => {
+      setModels(mod.models);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!accounts.length || !id || !models) return;
 
     const fetchEmbedConfig = async () => {
       try {
@@ -44,12 +50,11 @@ export default function ReportPage() {
         });
       } catch (error) {
         console.error('Failed to get embed token', error);
-        // Optionally handle error (redirect or show message)
       }
     };
 
     fetchEmbedConfig();
-  }, [accounts, id, instance]);
+  }, [accounts, id, instance, models]);
 
   if (!accounts.length || !id || !embedConfig) {
     return <Spinner />;
@@ -67,4 +72,3 @@ export default function ReportPage() {
     </div>
   );
 }
-
