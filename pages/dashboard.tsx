@@ -37,7 +37,11 @@ export default function Dashboard() {
     }
 
     const idToken = currentAccounts[0]?.idTokenClaims;
-    const groups = Array.isArray(idToken?.groups) ? idToken.groups : [];
+    const groups: string[] =
+      idToken && 'groups' in idToken && Array.isArray((idToken as any).groups)
+        ? (idToken as any).groups
+        : [];
+
 
     if (groups.includes('Admin')) setUserGroup('Admin');
     else if (groups.includes('NBL')) setUserGroup('NBL');
