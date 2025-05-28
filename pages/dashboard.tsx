@@ -25,31 +25,39 @@ const reports: Record<'Players' | 'Coach' | 'NBL' | 'Admin', { id: string; title
   ],
 };
 
-export default function Home() {
+const groupMap: Record<string, 'Players' | 'Coach' | 'NBL' | 'Admin'> = {
+  'GUID_FOR_ADMIN_GROUP': 'Admin',
+  'GUID_FOR_NBL_GROUP': 'NBL',
+  'GUID_FOR_COACH_GROUP': 'Coach',
+  'GUID_FOR_PLAYERS_GROUP': 'Players',
+};
+
+export default function Dashboard() {
   const { instance, accounts } = useMsal();
   const router = useRouter();
   const [userGroup, setUserGroup] = useState<'Players' | 'Coach' | 'NBL' | 'Admin' | null>(null);
 
-  if (!accounts.length || !userGroup) return <Spinner />;
-
   useEffect(() => {
     if (!accounts.length) {
       instance.loginRedirect();
-    } else {
-      const idToken = accounts[0]?.idTokenClaims;
-      const groups: string[] =
-        idToken && Array.isArray((idToken as any).groups)
-          ? (idToken as any).groups
-          : [];
+      return;
+    }
 
-      if (groups.includes('Admin')) setUserGroup('Admin');
-      else if (groups.includes('NBL')) setUserGroup('NBL');
-      else if (groups.includes('Coach')) setUserGroup('Coach');
-      else if (groups.includes('Players')) setUserGroup('Players');
+    const idToken = accounts[0]?.idTokenClaims;
+    const groups: string[] = Array.isArray((idToken as any)?.groups) ? (idToken as any).groups : [];
+
+    // Map group GUIDs to friendly names
+    const foundGroupGuid = groups.find(guid => groupMap[guid]);
+    if (foundGroupGuid) {
+      setUserGroup(groupMap[foundGroupGuid]);
+    } else {
+      console.warn('No matching user group found in token groups:', groups);
+      // Optionally handle users not in any group
+      setUserGroup(null);
     }
   }, [accounts, instance]);
 
-  if (!accounts.length || !userGroup) return null;
+  if (!accounts.length || !userGroup) return <Spinner />;
 
   return (
     <div className="min-h-screen bg-gradient-down p-6 text-white">
