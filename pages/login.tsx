@@ -17,11 +17,18 @@ export default function LoginPage() {
     instance.loginRedirect();
   };
 
-  return accounts.length ? (
-    <Spinner />
-  ) : (
-    <div
-      className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-[#22967a] to-[#154d42] text-white"
-    >
-      <div className="mb-8 text-center">
-        <img src="/l
+ return accounts.length ? (
+  <Spinner />
+) : (
+  <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-[#22967a] to-[#154d42] text-white">
+    <div className="mb-8 text-center">
+      <img src="/logo.png" alt="Logo" className="mx-auto mb-4 w-24 h-24" />
+      <h1 className="text-3xl font-bold">Welcome to the Dashboard</h1>
+      <p className="text-lg mt-2">Sign in to continue</p>
+    </div>
+    <Button onClick={() => instance.loginRedirect()}>
+      Sign in with Microsoft
+    </Button>
+  </div>
+);
+
