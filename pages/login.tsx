@@ -1,5 +1,5 @@
 import { useMsal } from '@azure/msal-react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Spinner from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
@@ -7,20 +7,35 @@ import { Button } from '@/components/ui/button';
 export default function LoginPage() {
   const { instance, accounts } = useMsal();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (accounts.length) {
-      router.replace('/dashboard'); // Already signed in
-    }
-  }, [accounts, router]);
+    // Handle redirect response once
+    instance.handleRedirectPromise().then((response) => {
+      if (response) {
+        // Redirect to dashboard on successful login
+        router.replace('/dashboard');
+      } else if (accounts.length) {
+        // If already logged in, go to dashboard
+        router.replace('/dashboard');
+      } else {
+        setLoading(false);
+      }
+    }).catch((error) => {
+      console.error('Login redirect error:', error);
+      setLoading(false);
+    });
+  }, [instance, accounts, router]);
 
   const handleLogin = () => {
     instance.loginRedirect();
   };
 
-  return accounts.length ? (
-    <Spinner />
-  ) : (
+  if (loading) {
+    return <Spinner />;
+  }
+
+  return (
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-[#22967a] to-[#154d42] text-white">
       <div className="mb-8 text-center">
         <img src="/logo.png" alt="Logo" className="mx-auto mb-4 w-24 h-24" />
@@ -31,4 +46,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
