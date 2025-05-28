@@ -1,22 +1,42 @@
 import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
+import { useEffect } from 'react';
 import { PublicClientApplication } from '@azure/msal-browser';
-import { MsalProvider } from '@azure/msal-react';
+import { MsalProvider, useMsal } from '@azure/msal-react';
 
 const msalConfig = {
   auth: {
     clientId: process.env.NEXT_PUBLIC_CLIENT_ID || '',
     authority: `https://login.microsoftonline.com/${process.env.NEXT_PUBLIC_TENANT_ID}`,
-    redirectUri: '/',
+    redirectUri: '/', // or your deployed app URL if needed
   },
 };
 
 const msalInstance = new PublicClientApplication(msalConfig);
 
+function MsalHandler({ children }: { children: React.ReactNode }) {
+  const { instance } = useMsal();
+
+  useEffect(() => {
+    instance.handleRedirectPromise().then((response) => {
+      if (response) {
+        // Optional: You can handle the login response here, like storing tokens or redirecting
+        console.log('Login response:', response);
+      }
+    }).catch((error) => {
+      console.error('Redirect error:', error);
+    });
+  }, [instance]);
+
+  return <>{children}</>;
+}
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <MsalProvider instance={msalInstance}>
-      <Component {...pageProps} />
+      <MsalHandler>
+        <Component {...pageProps} />
+      </MsalHandler>
     </MsalProvider>
   );
 }
