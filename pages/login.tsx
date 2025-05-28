@@ -5,22 +5,21 @@ import Spinner from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 
 export default function LoginPage() {
-  const { instance, accounts } = useMsal();
+  const { instance } = useMsal();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Handle redirect response from MSAL
     instance.handleRedirectPromise()
       .then((response) => {
+        console.log('handleRedirectPromise response:', response);
+        console.log('Current accounts:', instance.getAllAccounts());
+
         if (response) {
-          // Successful login from redirect
           router.replace('/dashboard');
-        } else if (accounts.length > 0) {
-          // Already logged in - redirect right away
+        } else if (instance.getAllAccounts().length > 0) {
           router.replace('/dashboard');
         } else {
-          // Not logged in yet, show login button
           setLoading(false);
         }
       })
@@ -28,10 +27,12 @@ export default function LoginPage() {
         console.error('Login redirect error:', error);
         setLoading(false);
       });
-  }, [instance, accounts, router]);
+  }, [instance, router]);
 
   const handleLogin = () => {
     instance.loginRedirect();
+    // or use loginPopup() for easier debugging
+    // instance.loginPopup().then(() => router.replace('/dashboard'));
   };
 
   if (loading) return <Spinner />;
@@ -47,3 +48,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
