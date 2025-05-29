@@ -13,7 +13,7 @@ export default function LoginPage() {
     const init = async () => {
       try {
         console.log('LoginPage → calling handleRedirectPromise...');
-        await instance.initialize(); // Ensure MSAL is initialized
+        await instance.initialize();
         const response = await instance.handleRedirectPromise();
 
         console.log('handleRedirectPromise response:', response);
@@ -41,21 +41,23 @@ export default function LoginPage() {
   if (loading) return <Spinner />;
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0f2027] via-[#203a43] to-[#2c5364]">
-      <div className="text-center">
-        <img
-          src="/logo.png"
-          alt="Nextplay logo"
-          className="mx-auto mb-8 w-40 h-40 object-contain"
-        />
-        <h1 className="text-white text-2xl font-light mb-4">Welcome to Nextplay stats</h1>
-        <Button
-          onClick={handleLogin}
-          className="px-6 py-2 border border-white text-white bg-transparent rounded-md hover:bg-white hover:text-black transition duration-300"
-        >
-          Log in
-        </Button>
+    <div
+      className="flex flex-col items-center justify-center h-screen text-white"
+      style={{
+        background: 'radial-gradient(ellipse at center bottom, #1b3d56 0%, #0d1f2d 100%)',
+      }}
+    >
+      <div className="mb-8 text-center">
+        <img src="/logo.png" alt="Logo" className="mx-auto mb-4 w-28 h-28" />
+        <h1 className="text-3xl font-bold">Welcome to Nextplay stats</h1>
+        <p className="text-lg mt-2">Please sign in</p>
       </div>
+      <Button
+        onClick={handleLogin}
+        className="bg-white text-gray-800 font-semibold px-6 py-2 rounded-md hover:bg-gray-200"
+      >
+        Log in
+      </Button>
     </div>
   );
 }
