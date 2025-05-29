@@ -45,10 +45,10 @@ export default function LoginPage() {
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-[#22967a] to-[#154d42] text-white">
       <div className="mb-8 text-center">
         <img src="/logo.png" alt="Logo" className="mx-auto mb-4 w-24 h-24" />
-        <h1 className="text-3xl font-bold">Welcome to the Dashboard</h1>
-        <p className="text-lg mt-2">Sign in to continue</p>
+        <h1 className="text-3xl font-bold">Welcome to the reason Zane should be in charge</h1>
+        <p className="text-lg mt-2">Please sign in</p>
       </div>
-      <Button onClick={handleLogin}>Sign in with Microsoft</Button>
+      <Button onClick={handleLogin}>Sign in</Button>
     </div>
   );
 }
