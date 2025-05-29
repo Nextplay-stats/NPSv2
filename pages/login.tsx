@@ -44,7 +44,7 @@ export default function LoginPage() {
     <div
       className="flex flex-col items-center justify-center h-screen text-white"
       style={{
-        background: 'radial-gradient(ellipse at center bottom, #1b3d56 0%, #0d1f2d 100%)',
+        background: 'radial-gradient(ellipse at center bottom, #1b3d56 0%, #0d1f2d 50%)',
       }}
     >
       <div className="mb-8 text-center">
