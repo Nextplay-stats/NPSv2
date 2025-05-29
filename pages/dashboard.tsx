@@ -38,23 +38,26 @@ export default function Dashboard() {
       return;
     }
 
-    const idToken = currentAccounts[0]?.idTokenClaims;
-    const groups: string[] =
-      idToken && 'groups' in idToken && Array.isArray((idToken as any).groups)
-        ? (idToken as any).groups
-        : [];
+const idToken = currentAccounts[0]?.idTokenClaims;
+const roles: string[] =
+  idToken && 'roles' in idToken && Array.isArray((idToken as any).roles)
+    ? (idToken as any).roles
+    : [];
 
-    console.log('Dashboard → raw group claims:', groups);
+console.log('Dashboard → raw app roles:', roles);
 
-    // Map Azure AD group object IDs to friendly names
-    const groupMap: Record<string, Group> = {
-      '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': 'Admin',
-      'f997e7e8-1542-49d1-a140-74873fd7d209': 'NBL',
-      '3015ed3e-0eca-4d1d-984d-51e0075bb219': 'Coach',
-      '7b72d962-8338-4081-895d-4c460e6bf59c': 'Players',
-    };
+// Directly map role names to your app roles
+const validRoles: Group[] = ['Admin', 'Coach', 'NBL', 'Players'];
+const matchedRole = roles.find((role) => validRoles.includes(role as Group)) as Group;
 
-    const matchedGroup = groups.map((id) => groupMap[id]).find(Boolean);
+if (matchedRole) {
+  console.log('Dashboard → Matched user role:', matchedRole);
+  setUserGroup(matchedRole);
+} else {
+  console.warn('Dashboard → No valid role matched:', roles);
+  // Optionally: router.replace('/unauthorized');
+}
+
 
     if (matchedGroup) {
       console.log('Dashboard → Matched user group:', matchedGroup);
