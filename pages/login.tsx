@@ -10,29 +10,28 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  const init = async () => {
-    try {
-      console.log('LoginPage → calling handleRedirectPromise...');
-      await instance.initialize(); // ✅ Ensure MSAL is initialized
-      const response = await instance.handleRedirectPromise();
+    const init = async () => {
+      try {
+        console.log('LoginPage → calling handleRedirectPromise...');
+        await instance.initialize(); // Ensure MSAL is initialized
+        const response = await instance.handleRedirectPromise();
 
-      console.log('handleRedirectPromise response:', response);
-      console.log('Current accounts:', instance.getAllAccounts());
+        console.log('handleRedirectPromise response:', response);
+        console.log('Current accounts:', instance.getAllAccounts());
 
-      if (response || instance.getAllAccounts().length > 0) {
-        router.replace('/dashboard');
-      } else {
+        if (response || instance.getAllAccounts().length > 0) {
+          router.replace('/dashboard');
+        } else {
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error('LoginPage → Error during handleRedirectPromise:', error);
         setLoading(false);
       }
-    } catch (error) {
-      console.error('LoginPage → Error during handleRedirectPromise:', error);
-      setLoading(false);
-    }
-  };
+    };
 
-  init();
-}, [instance, router]);
-
+    init();
+  }, [instance, router]);
 
   const handleLogin = () => {
     console.log('LoginPage → Redirecting...');
@@ -42,13 +41,21 @@ export default function LoginPage() {
   if (loading) return <Spinner />;
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-[#22967a] to-[#154d42] text-white">
-      <div className="mb-8 text-center">
-        <img src="/logo.png" alt="Logo" className="mx-auto mb-4 w-24 h-24" />
-        <h1 className="text-3xl font-bold">Welcome to the reason Zane should be in charge</h1>
-        <p className="text-lg mt-2">Please sign in</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0f2027] via-[#203a43] to-[#2c5364]">
+      <div className="text-center">
+        <img
+          src="/logo.png"
+          alt="Nextplay logo"
+          className="mx-auto mb-8 w-40 h-40 object-contain"
+        />
+        <h1 className="text-white text-2xl font-light mb-4">Welcome to Nextplay stats</h1>
+        <Button
+          onClick={handleLogin}
+          className="px-6 py-2 border border-white text-white bg-transparent rounded-md hover:bg-white hover:text-black transition duration-300"
+        >
+          Log in
+        </Button>
       </div>
-      <Button onClick={handleLogin}>Sign in</Button>
     </div>
   );
 }
