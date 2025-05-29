@@ -38,34 +38,33 @@ export default function Dashboard() {
       return;
     }
 
-const idToken = currentAccounts[0]?.idTokenClaims;
-const roles: string[] =
-  idToken && 'roles' in idToken && Array.isArray((idToken as any).roles)
-    ? (idToken as any).roles
-    : [];
+    const idToken = currentAccounts[0]?.idTokenClaims;
 
-console.log('Dashboard → raw app roles:', roles);
+    const roles: string[] =
+      idToken && 'roles' in idToken && Array.isArray((idToken as any).roles)
+        ? (idToken as any).roles
+        : [];
 
-// Directly map role names to your app roles
-const validRoles: Group[] = ['Admin', 'Coach', 'NBL', 'Players'];
-const matchedRole = roles.find((role) => validRoles.includes(role as Group)) as Group;
+    console.log('Dashboard → raw app roles:', roles);
 
-if (matchedRole) {
-  console.log('Dashboard → Matched user role:', matchedRole);
-  setUserGroup(matchedRole);
-} else {
-  console.warn('Dashboard → No valid role matched:', roles);
-  // Optionally: router.replace('/unauthorized');
-}
+    // Map role IDs to role names
+    const roleMap: Record<string, Group> = {
+      '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': 'Admin',
+      'f997e7e8-1542-49d1-a140-74873fd7d209': 'NBL',
+      '3015ed3e-0eca-4d1d-984d-51e0075bb219': 'Coach',
+      '7b72d962-8338-4081-895d-4c460e6bf59c': 'Players',
+    };
 
+    const matchedRole = roles.map((id) => roleMap[id]).find(Boolean);
 
-if (matchedRole) {
-  console.log('Dashboard → Matched user role:', matchedRole);
-  setUserGroup(matchedRole);
-} else {
-  console.warn('Dashboard → No valid role matched:', roles);
-}
-
+    if (matchedRole) {
+      console.log('Dashboard → Matched user role:', matchedRole);
+      setUserGroup(matchedRole);
+    } else {
+      console.warn('Dashboard → No valid role matched:', roles);
+      // Optionally redirect:
+      // router.replace('/unauthorized');
+    }
   }, [instance, router]);
 
   if (!accounts.length || !userGroup) return <Spinner />;
