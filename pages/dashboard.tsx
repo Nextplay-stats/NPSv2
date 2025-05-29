@@ -59,14 +59,13 @@ if (matchedRole) {
 }
 
 
-    if (matchedGroup) {
-      console.log('Dashboard → Matched user group:', matchedGroup);
-      setUserGroup(matchedGroup);
-    } else {
-      console.warn('Dashboard → No valid group matched:', groups);
-      // Optionally redirect to unauthorized page
-      // router.replace('/unauthorized');
-    }
+if (matchedRole) {
+  console.log('Dashboard → Matched user role:', matchedRole);
+  setUserGroup(matchedRole);
+} else {
+  console.warn('Dashboard → No valid role matched:', roles);
+}
+
   }, [instance, router]);
 
   if (!accounts.length || !userGroup) return <Spinner />;
