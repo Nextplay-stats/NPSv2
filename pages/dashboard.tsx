@@ -3,9 +3,12 @@ import { useMsal } from '@azure/msal-react';
 import { useEffect, useState } from 'react';
 import Spinner from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
+import DropdownMenu from '@/components/DropdownMenu'; // You must create this
 
 const reports = {
-  Players: [{ id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' }],
+  Players: [
+    { id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' },
+  ],
   Coach: [
     { id: 'teamComparison', title: 'Team Comparison', description: 'Compare teams across seasons.' },
     { id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' },
@@ -29,6 +32,8 @@ export default function Dashboard() {
 
   type Group = 'Players' | 'Coach' | 'NBL' | 'Admin' | null;
   const [userGroup, setUserGroup] = useState<Group>(null);
+  const [userName, setUserName] = useState<string>('User');
+  const [teamName, setTeamName] = useState<string>('Your Team');
 
   useEffect(() => {
     const currentAccounts = instance.getAllAccounts();
@@ -38,16 +43,10 @@ export default function Dashboard() {
       return;
     }
 
-    const idToken = currentAccounts[0]?.idTokenClaims;
+    const idToken = currentAccounts[0]?.idTokenClaims as any;
 
-    const roles: string[] =
-      idToken && 'roles' in idToken && Array.isArray((idToken as any).roles)
-        ? (idToken as any).roles
-        : [];
+    const roles: string[] = Array.isArray(idToken?.roles) ? idToken.roles : [];
 
-    console.log('Dashboard → raw app roles:', roles);
-
-    // Map role IDs to role names
     const roleMap: Record<string, Group> = {
       '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': 'Admin',
       'f997e7e8-1542-49d1-a140-74873fd7d209': 'NBL',
@@ -57,39 +56,58 @@ export default function Dashboard() {
 
     const matchedRole = roles.map((id) => roleMap[id]).find(Boolean);
 
-    if (matchedRole) {
-      console.log('Dashboard → Matched user role:', matchedRole);
-      setUserGroup(matchedRole);
-    } else {
-      console.warn('Dashboard → No valid role matched:', roles);
-      // Optionally redirect:
-      // router.replace('/unauthorized');
-    }
+    setUserGroup(matchedRole || null);
+    setUserName(idToken?.name || 'User');
+    setTeamName(idToken?.extension_teamName || 'Unknown Team');
   }, [instance, router]);
 
   if (!accounts.length || !userGroup) return <Spinner />;
 
+  const teamLogoPath = `/logos/${teamName.replace(/\s+/g, '').toLowerCase()}.png`;
+
   return (
-    <div className="min-h-screen bg-gradient-down p-6 text-white">
-      <div className="flex justify-between items-center mb-6">
+    <div className="min-h-screen bg-[#a0b8c6] text-black">
+      {/* Top nav */}
+      <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-white" />
-          <h1 className="text-2xl font-bold">Basketball Dashboard</h1>
+          <img src="/logo.png" className="w-8 h-8" />
+          <span className="text-xl font-bold">Nextplay stats</span>
         </div>
-        <Button onClick={() => instance.logoutRedirect()}>Logout</Button>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex items-center space-x-4">
+          <span className="hidden md:inline">Welcome {teamName}</span>
+          <DropdownMenu />
+        </div>
+      </header>
+
+      {/* Nav tabs (role-based, optional) */}
+      <nav className="flex justify-around bg-[#587c92] text-white text-sm">
         {reports[userGroup]?.map((report) => (
-          <div
+          <button
             key={report.id}
-            className="bg-white text-black p-4 rounded-xl shadow-md cursor-pointer hover:shadow-xl"
             onClick={() => router.push(`/report/${report.id}`)}
+            className="py-2 px-4 hover:bg-[#3e5e73]"
           >
-            <h2 className="text-lg font-semibold">{report.title}</h2>
-            <p className="text-sm text-gray-500">{report.description}</p>
-          </div>
+            {report.title}
+          </button>
         ))}
-      </div>
+      </nav>
+
+      {/* Main Content: Logo + Buttons */}
+      <main className="flex flex-col items-center justify-center py-12 text-center">
+        <img src={teamLogoPath} alt="Team Logo" className="w-48 h-48 mb-6" />
+        <h1 className="text-2xl font-bold mb-4">{teamName}</h1>
+        <div className="space-y-4 w-full max-w-sm">
+          {reports[userGroup]?.map((report) => (
+            <button
+              key={report.id}
+              onClick={() => router.push(`/report/${report.id}`)}
+              className="w-full py-3 px-6 bg-[#3e5e73] text-white rounded-md hover:bg-[#2d4a5e] transition"
+            >
+              {report.title}
+            </button>
+          ))}
+        </div>
+      </main>
     </div>
   );
 }
