@@ -19,3 +19,13 @@ module.exports = {
   },
   plugins: [],
 }
+// tailwind.config.js
+module.exports = {
+  darkMode: 'class', // 'media' is also an option
+  content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+
