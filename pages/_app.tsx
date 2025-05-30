@@ -2,16 +2,7 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { PublicClientApplication } from '@azure/msal-browser';
 import { MsalProvider } from '@azure/msal-react';
-import '../styles/globals.css';
 import { ThemeProvider } from '@/context/ThemeContext'; // adjust if the path differs
-
-export default function App({ Component, pageProps }: AppProps) {
-  return (
-    <ThemeProvider>
-      <Component {...pageProps} />
-    </ThemeProvider>
-  );
-}
 
 const msalConfig = {
   auth: {
@@ -23,12 +14,12 @@ const msalConfig = {
 
 const msalInstance = new PublicClientApplication(msalConfig);
 
-// ✅ No need to manually call handleRedirectPromise in _app.tsx
-
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <MsalProvider instance={msalInstance}>
-      <Component {...pageProps} />
+      <ThemeProvider>
+        <Component {...pageProps} />
+      </ThemeProvider>
     </MsalProvider>
   );
 }
