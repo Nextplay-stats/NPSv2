@@ -3,7 +3,6 @@ import type { AppProps } from 'next/app';
 import { PublicClientApplication } from '@azure/msal-browser';
 import { MsalProvider } from '@azure/msal-react';
 import '../styles/globals.css';
-import type { AppProps } from 'next/app';
 import { ThemeProvider } from '@/context/ThemeContext'; // adjust if the path differs
 
 export default function App({ Component, pageProps }: AppProps) {
