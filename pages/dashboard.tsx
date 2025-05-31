@@ -38,14 +38,20 @@ export default function Dashboard() {
   useEffect(() => {
     const currentAccounts = instance.getAllAccounts();
 
-    if (!currentAccounts.length) {
+    if (currentAccounts.length === 0) {
       router.replace('/login');
       return;
     }
 
     const idToken = currentAccounts[0]?.idTokenClaims as any;
 
-    // Try to get roles from roles claim, fallback to groups claim
+    if (!idToken) {
+      // No idToken claims? Redirect to login.
+      router.replace('/login');
+      return;
+    }
+
+    // Roles can come from either roles or groups claim
     const roles: string[] = Array.isArray(idToken?.roles)
       ? idToken.roles
       : Array.isArray(idToken?.groups)
@@ -59,19 +65,21 @@ export default function Dashboard() {
       '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
     };
 
-    const matchedRole = roles.map((id) => roleMap[id]).find(Boolean);
+    const matchedRole = roles.map((id) => roleMap[id]).find(Boolean) || null;
 
-    setUserGroup(matchedRole || null);
-    setUserName(idToken?.name || 'User'); // name claim from token
-    setTeamName(idToken?.companyName || 'Unknown Team'); // companyName claim from token
+    if (!matchedRole) {
+      // User has no recognized role, redirect or handle accordingly
+      router.replace('/login');
+      return;
+    }
+
+    setUserGroup(matchedRole);
+    setUserName(idToken?.name || 'User');
+    setTeamName(idToken?.companyName || 'Unknown Team');
     setLoading(false);
   }, [instance, router]);
 
   if (loading) return <Spinner />;
-  if (!accounts.length || !userGroup) {
-    router.replace('/login');
-    return null;
-  }
 
   const teamLogoPath = `/logos/${teamName.replace(/\s+/g, '').toLowerCase()}.png`;
 
