@@ -81,7 +81,7 @@ export default function Dashboard() {
           <span className="text-xl font-bold">Nextplay stats</span>
         </div>
         <div className="flex items-center space-x-4">
-          <span className="hidden md:inline">Welcome {teamName}</span>
+          <span className="hidden md:inline">Welcome {user}</span>
           <DropdownMenu
             label="Account"
             items={[
