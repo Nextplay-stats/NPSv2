@@ -2,6 +2,7 @@ import { useRouter } from 'next/router';
 import { useMsal } from '@azure/msal-react';
 import { useEffect, useState } from 'react';
 import Spinner from '@/components/ui/spinner';
+import { Button } from '@/components/ui/button';
 import DropdownMenu from '@/components/DropdownMenu';
 
 const reports = {
@@ -32,7 +33,7 @@ export default function Dashboard() {
   type Group = 'Players' | 'Coach' | 'NBL' | 'Admin' | null;
   const [userGroup, setUserGroup] = useState<Group>(null);
   const [userName, setUserName] = useState<string>('User');
-  const [teamName, setTeamName] = useState<string>('Your Team');
+  const [teamName, setTeamName] = useState<string>('Unknown Team');
 
   useEffect(() => {
     const currentAccounts = instance.getAllAccounts();
@@ -44,24 +45,20 @@ export default function Dashboard() {
 
     const idToken = currentAccounts[0]?.idTokenClaims as any;
 
-    // Extract roles and companyName from token claims
     const roles: string[] = Array.isArray(idToken?.roles) ? idToken.roles : [];
 
-    // Map roles to groups
     const roleMap: Record<string, Group> = {
-      '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': 'Admin',
-      'f997e7e8-1542-49d1-a140-74873fd7d209': 'NBL',
-      '3015ed3e-0eca-4d1d-984d-51e0075bb219': 'Coach',
-      '7b72d962-8338-4081-895d-4c460e6bf59c': 'Players',
+      'e6be3e80-2f16-4cf6-9914-fd34c3cc90a1': 'Admin',
+      '8a39cc44-073f-4d3e-bca7-c94f8fcf5aa2': 'NBL',
+      'b1f2b8f9-b4a4-4ae2-930b-0db1580ee5b2': 'Coach',
+      '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
     };
 
     const matchedRole = roles.map((id) => roleMap[id]).find(Boolean);
 
     setUserGroup(matchedRole || null);
-    setUserName(idToken?.name || 'User');
-
-    // Use 'companyName' claim from token, fallback to 'Unknown Team'
-    setTeamName(idToken?.companyName || 'Unknown Team');
+    setUserName(idToken?.name || 'User'); // name claim from token
+    setTeamName(idToken?.companyName || 'Unknown Team'); // companyName claim from token
   }, [instance, router]);
 
   if (!accounts.length || !userGroup) return <Spinner />;
@@ -81,12 +78,10 @@ export default function Dashboard() {
           <span className="text-xl font-bold">Nextplay stats</span>
         </div>
         <div className="flex items-center space-x-4">
-          <span className="hidden md:inline">Welcome {user}</span>
+          <span className="hidden md:inline">Welcome {userName} from {teamName}</span>
           <DropdownMenu
             label="Account"
-            items={[
-              { label: 'Logout', onClick: handleLogout },
-            ]}
+            items={[{ label: 'Logout', onClick: handleLogout }]}
           />
         </div>
       </header>
