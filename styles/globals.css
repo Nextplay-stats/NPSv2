@@ -3,5 +3,5 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gradient-down text-white min-h-screen;
+  @apply bg-gradient-to-b from-blue-900 to-blue-600 text-white min-h-screen;
 }
