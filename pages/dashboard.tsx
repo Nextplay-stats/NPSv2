@@ -3,7 +3,7 @@ import { useMsal } from '@azure/msal-react';
 import { useEffect, useState } from 'react';
 import Spinner from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
-import DropdownMenu from '@/components/DropdownMenu'; // You must create this
+import DropdownMenu from '@/components/DropdownMenu';
 
 const reports = {
   Players: [
@@ -65,21 +65,30 @@ export default function Dashboard() {
 
   const teamLogoPath = `/logos/${teamName.replace(/\s+/g, '').toLowerCase()}.png`;
 
+  const handleLogout = async () => {
+    await instance.logoutRedirect();
+  };
+
   return (
     <div className="min-h-screen bg-[#a0b8c6] text-black">
       {/* Top nav */}
       <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
         <div className="flex items-center space-x-3">
-          <img src="/logo.png" className="w-8 h-8" />
+          <img src="/logo.png" className="w-8 h-8" alt="Logo" />
           <span className="text-xl font-bold">Nextplay stats</span>
         </div>
         <div className="flex items-center space-x-4">
           <span className="hidden md:inline">Welcome {teamName}</span>
-          <DropdownMenu />
+          <DropdownMenu
+            label="Account"
+            items={[
+              { label: 'Logout', onClick: handleLogout },
+            ]}
+          />
         </div>
       </header>
 
-      {/* Nav tabs (role-based, optional) */}
+      {/* Nav tabs */}
       <nav className="flex justify-around bg-[#587c92] text-white text-sm">
         {reports[userGroup]?.map((report) => (
           <button
@@ -92,7 +101,7 @@ export default function Dashboard() {
         ))}
       </nav>
 
-      {/* Main Content: Logo + Buttons */}
+      {/* Main content */}
       <main className="flex flex-col items-center justify-center py-12 text-center">
         <img src={teamLogoPath} alt="Team Logo" className="w-48 h-48 mb-6" />
         <h1 className="text-2xl font-bold mb-4">{teamName}</h1>
