@@ -2,7 +2,6 @@ import { useRouter } from 'next/router';
 import { useMsal } from '@azure/msal-react';
 import { useEffect, useState } from 'react';
 import Spinner from '@/components/ui/spinner';
-import { Button } from '@/components/ui/button';
 import DropdownMenu from '@/components/DropdownMenu';
 
 const reports = {
@@ -45,8 +44,10 @@ export default function Dashboard() {
 
     const idToken = currentAccounts[0]?.idTokenClaims as any;
 
+    // Extract roles and companyName from token claims
     const roles: string[] = Array.isArray(idToken?.roles) ? idToken.roles : [];
 
+    // Map roles to groups
     const roleMap: Record<string, Group> = {
       '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': 'Admin',
       'f997e7e8-1542-49d1-a140-74873fd7d209': 'NBL',
@@ -58,7 +59,9 @@ export default function Dashboard() {
 
     setUserGroup(matchedRole || null);
     setUserName(idToken?.name || 'User');
-    setTeamName(idToken?.extension_teamName || 'Unknown Team');
+
+    // Use 'companyName' claim from token, fallback to 'Unknown Team'
+    setTeamName(idToken?.companyName || 'Unknown Team');
   }, [instance, router]);
 
   if (!accounts.length || !userGroup) return <Spinner />;
