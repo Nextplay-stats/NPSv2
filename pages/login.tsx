@@ -10,20 +10,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkLogin = async () => {
+    const init = async () => {
       try {
         console.log('LoginPage → calling handleRedirectPromise...');
         const response = await instance.handleRedirectPromise();
-        const accounts = instance.getAllAccounts();
 
         console.log('handleRedirectPromise response:', response);
+        const accounts = instance.getAllAccounts();
         console.log('Current accounts:', accounts);
 
-        // ✅ Already authenticated
-        if (accounts.length > 0) {
+        if (response || accounts.length > 0) {
           router.replace('/dashboard');
         } else {
-          setLoading(false);
+          setLoading(false); // No session, show login button
         }
       } catch (error) {
         console.error('LoginPage → Error in handleRedirectPromise:', error);
@@ -31,7 +30,7 @@ export default function LoginPage() {
       }
     };
 
-    checkLogin();
+    init();
   }, [instance, router]);
 
   const handleLogin = () => {
@@ -39,9 +38,7 @@ export default function LoginPage() {
     instance.loginRedirect();
   };
 
-  if (loading) {
-    return <Spinner />;
-  }
+  if (loading) return <Spinner />;
 
   return (
     <div
