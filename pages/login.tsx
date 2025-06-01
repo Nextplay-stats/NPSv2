@@ -8,9 +8,29 @@ export default function LoginPage() {
   const { instance } = useMsal();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    const init = async () => {
+    // Ensure MSAL is initialized before any calls
+    const initMsal = async () => {
+      try {
+        if (!instance.getAllAccounts().length) {
+          // Call initialize explicitly just once if needed
+          await instance.initialize?.(); // Optional chaining
+        }
+        setInitialized(true);
+      } catch (error) {
+        console.error('MSAL Initialization error:', error);
+      }
+    };
+
+    initMsal();
+  }, [instance]);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      if (!initialized) return;
+
       try {
         console.log('LoginPage → calling handleRedirectPromise...');
         const response = await instance.handleRedirectPromise();
@@ -22,7 +42,7 @@ export default function LoginPage() {
         if (response || accounts.length > 0) {
           router.replace('/dashboard');
         } else {
-          setLoading(false); // No session, show login button
+          setLoading(false); // Show login button
         }
       } catch (error) {
         console.error('LoginPage → Error in handleRedirectPromise:', error);
@@ -30,15 +50,15 @@ export default function LoginPage() {
       }
     };
 
-    init();
-  }, [instance, router]);
+    checkAuth();
+  }, [instance, router, initialized]);
 
   const handleLogin = () => {
     console.log('LoginPage → Redirecting...');
     instance.loginRedirect();
   };
 
-  if (loading) return <Spinner />;
+  if (loading || !initialized) return <Spinner />;
 
   return (
     <div
