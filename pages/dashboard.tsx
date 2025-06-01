@@ -25,33 +25,30 @@ const reports = {
   ],
 };
 
+type Group = 'Players' | 'Coach' | 'NBL' | 'Admin';
+
 export default function Dashboard() {
-  const { instance, accounts } = useMsal();
+  const { instance } = useMsal();
   const router = useRouter();
 
-  type Group = 'Players' | 'Coach' | 'NBL' | 'Admin' | null;
-  const [userGroup, setUserGroup] = useState<Group>(null);
-  const [userName, setUserName] = useState<string>('User');
-  const [teamName, setTeamName] = useState<string>('Unknown Team');
+  const [userGroup, setUserGroup] = useState<Group | null>(null);
+  const [userName, setUserName] = useState('User');
+  const [teamName, setTeamName] = useState('Unknown Team');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const currentAccounts = instance.getAllAccounts();
-
-    if (currentAccounts.length === 0) {
+    if (!currentAccounts.length) {
       router.replace('/login');
       return;
     }
 
     const idToken = currentAccounts[0]?.idTokenClaims as any;
-
     if (!idToken) {
-      // No idToken claims? Redirect to login.
       router.replace('/login');
       return;
     }
 
-    // Roles can come from either roles or groups claim
     const roles: string[] = Array.isArray(idToken?.roles)
       ? idToken.roles
       : Array.isArray(idToken?.groups)
@@ -65,10 +62,9 @@ export default function Dashboard() {
       '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
     };
 
-    const matchedRole = roles.map((id) => roleMap[id]).find(Boolean) || null;
+    const matchedRole = roles.map((id) => roleMap[id]).find(Boolean);
 
     if (!matchedRole) {
-      // User has no recognized role, redirect or handle accordingly
       router.replace('/login');
       return;
     }
@@ -79,7 +75,7 @@ export default function Dashboard() {
     setLoading(false);
   }, [instance, router]);
 
-  if (loading) return <Spinner />;
+  if (loading || !userGroup) return <Spinner />;
 
   const teamLogoPath = `/logos/${teamName.replace(/\s+/g, '').toLowerCase()}.png`;
 
@@ -106,7 +102,7 @@ export default function Dashboard() {
 
       {/* Nav tabs */}
       <nav className="flex justify-around bg-[#587c92] text-white text-sm">
-        {reports[userGroup]?.map((report) => (
+        {reports[userGroup].map((report) => (
           <button
             key={report.id}
             onClick={() => router.push(`/report/${report.id}`)}
@@ -122,7 +118,7 @@ export default function Dashboard() {
         <img src={teamLogoPath} alt="Team Logo" className="w-48 h-48 mb-6" />
         <h1 className="text-2xl font-bold mb-4">{teamName}</h1>
         <div className="space-y-4 w-full max-w-sm">
-          {reports[userGroup]?.map((report) => (
+          {reports[userGroup].map((report) => (
             <button
               key={report.id}
               onClick={() => router.push(`/report/${report.id}`)}
