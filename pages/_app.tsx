@@ -3,12 +3,12 @@ import '@/styles/globals.css';
 import type { AppProps } from 'next/app';
 import { PublicClientApplication } from '@azure/msal-browser';
 import { MsalProvider } from '@azure/msal-react';
-import { ThemeProvider } from '@/context/ThemeContext'; // adjust if needed
+import { ThemeProvider } from '@/context/ThemeContext';
 
 const clientId = process.env.NEXT_PUBLIC_CLIENT_ID;
 const tenantId = process.env.NEXT_PUBLIC_TENANT_ID;
 const redirectUri =
-  process.env.NEXT_PUBLIC_REDIRECT_URI || 'https://zealous-sky-0785c6503.6.azurestaticapps.net';
+  process.env.NEXT_PUBLIC_REDIRECT_URI || 'http://localhost:3000/login';
 
 if (!clientId || !tenantId) {
   console.error('Missing Azure AD environment variables');
@@ -16,9 +16,13 @@ if (!clientId || !tenantId) {
 
 const msalConfig = {
   auth: {
-    clientId: clientId || '',
+    clientId: clientId!,
     authority: `https://login.microsoftonline.com/${tenantId}`,
     redirectUri,
+  },
+  cache: {
+    cacheLocation: 'localStorage', // ensures login state persists
+    storeAuthStateInCookie: false, // set true if you need legacy browser support
   },
 };
 
