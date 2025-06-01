@@ -12,9 +12,12 @@ export default function DropdownMenu({ label, items }: DropdownMenuProps) {
   return (
     <Menu as="div" className="relative inline-block text-left">
       <div>
-        <Menu.Button className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none">
+        <Menu.Button
+          className="inline-flex justify-center items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75"
+          aria-label={`${label} dropdown`}
+        >
           {label}
-          <ChevronDownIcon className="w-5 h-5 ml-2" />
+          <ChevronDownIcon className="w-5 h-5 ml-2" aria-hidden="true" />
         </Menu.Button>
       </div>
 
@@ -36,7 +39,7 @@ export default function DropdownMenu({ label, items }: DropdownMenuProps) {
                     onClick={item.onClick}
                     className={`${
                       active ? 'bg-blue-100' : ''
-                    } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-700`}
+                    } group flex w-full items-center rounded-md px-2 py-2 text-sm text-gray-700 transition-colors duration-150`}
                   >
                     {item.label}
                   </button>
