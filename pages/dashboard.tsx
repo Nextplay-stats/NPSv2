@@ -1,10 +1,14 @@
+// pages/dashboard.tsx
+
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useMsal } from '@azure/msal-react';
-import { useEffect, useState } from 'react';
 import Spinner from '@/components/ui/spinner';
 import DropdownMenu from '@/components/DropdownMenu';
 
-const reports = {
+type Group = 'Players' | 'Coach' | 'NBL' | 'Admin';
+
+const reports: Record<Group, { id: string; title: string; description: string }[]> = {
   Players: [
     { id: 'playerStats', title: 'Player Stats', description: 'Player-specific performance data.' },
   ],
@@ -25,57 +29,65 @@ const reports = {
   ],
 };
 
-type Group = 'Players' | 'Coach' | 'NBL' | 'Admin';
-
 export default function Dashboard() {
   const { instance } = useMsal();
   const router = useRouter();
 
   const [userGroup, setUserGroup] = useState<Group | null>(null);
-  const [userName, setUserName] = useState('User');
-  const [teamName, setTeamName] = useState('Unknown Team');
+  const [userName, setUserName] = useState<string>('User');
+  const [teamName, setTeamName] = useState<string>('Unknown Team');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const currentAccounts = instance.getAllAccounts();
-    if (!currentAccounts.length) {
-      router.replace('/login');
-      return;
-    }
+    const init = async () => {
+      try {
+        const accounts = instance.getAllAccounts();
+        if (accounts.length === 0) {
+          router.replace('/login');
+          return;
+        }
 
-    const idToken = currentAccounts[0]?.idTokenClaims as any;
-    if (!idToken) {
-      router.replace('/login');
-      return;
-    }
+        const idToken = accounts[0]?.idTokenClaims as any;
 
-    const roles: string[] = Array.isArray(idToken?.roles)
-      ? idToken.roles
-      : Array.isArray(idToken?.groups)
-      ? idToken.groups
-      : [];
+        if (!idToken) {
+          router.replace('/login');
+          return;
+        }
 
-    const roleMap: Record<string, Group> = {
-      'e6be3e80-2f16-4cf6-9914-fd34c3cc90a1': 'Admin',
-      '8a39cc44-073f-4d3e-bca7-c94f8fcf5aa2': 'NBL',
-      'b1f2b8f9-b4a4-4ae2-930b-0db1580ee5b2': 'Coach',
-      '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
+        const roleMap: Record<string, Group> = {
+          'e6be3e80-2f16-4cf6-9914-fd34c3cc90a1': 'Admin',
+          '8a39cc44-073f-4d3e-bca7-c94f8fcf5aa2': 'NBL',
+          'b1f2b8f9-b4a4-4ae2-930b-0db1580ee5b2': 'Coach',
+          '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
+        };
+
+        const claims = idToken || {};
+        const roles: string[] =
+          Array.isArray(claims.roles) ? claims.roles :
+          Array.isArray(claims.groups) ? claims.groups : [];
+
+        const matchedRole = roles.map(r => roleMap[r]).find(Boolean);
+
+        if (!matchedRole) {
+          console.warn('No valid role found. Redirecting to login.');
+          router.replace('/login');
+          return;
+        }
+
+        setUserGroup(matchedRole);
+        setUserName(claims?.name || 'User');
+        setTeamName(claims?.companyName || 'Unknown Team');
+        setLoading(false);
+      } catch (err) {
+        console.error('Failed to initialize dashboard', err);
+        router.replace('/login');
+      }
     };
 
-    const matchedRole = roles.map((id) => roleMap[id]).find(Boolean);
-
-    if (!matchedRole) {
-      router.replace('/login');
-      return;
-    }
-
-    setUserGroup(matchedRole);
-    setUserName(idToken?.name || 'User');
-    setTeamName(idToken?.companyName || 'Unknown Team');
-    setLoading(false);
+    init();
   }, [instance, router]);
 
-  if (loading || !userGroup) return <Spinner />;
+  if (loading) return <Spinner />;
 
   const teamLogoPath = `/logos/${teamName.replace(/\s+/g, '').toLowerCase()}.png`;
 
@@ -83,9 +95,17 @@ export default function Dashboard() {
     await instance.logoutRedirect();
   };
 
+  if (!userGroup) {
+    return (
+      <div className="flex items-center justify-center h-screen text-center">
+        <p className="text-red-600">Access denied. No valid role assigned.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#a0b8c6] text-black">
-      {/* Top nav */}
+      {/* Header */}
       <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
         <div className="flex items-center space-x-3">
           <img src="/logo.png" className="w-8 h-8" alt="Logo" />
@@ -102,7 +122,7 @@ export default function Dashboard() {
 
       {/* Nav tabs */}
       <nav className="flex justify-around bg-[#587c92] text-white text-sm">
-        {reports[userGroup].map((report) => (
+        {reports[userGroup]?.map((report) => (
           <button
             key={report.id}
             onClick={() => router.push(`/report/${report.id}`)}
@@ -118,7 +138,7 @@ export default function Dashboard() {
         <img src={teamLogoPath} alt="Team Logo" className="w-48 h-48 mb-6" />
         <h1 className="text-2xl font-bold mb-4">{teamName}</h1>
         <div className="space-y-4 w-full max-w-sm">
-          {reports[userGroup].map((report) => (
+          {reports[userGroup]?.map((report) => (
             <button
               key={report.id}
               onClick={() => router.push(`/report/${report.id}`)}
