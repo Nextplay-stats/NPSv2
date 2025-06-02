@@ -34,6 +34,7 @@ export default function Dashboard() {
   const [userGroup, setUserGroup] = useState<Group>(null);
   const [userName, setUserName] = useState('User');
   const [teamName, setTeamName] = useState('Unknown Team');
+  const [teamLogoPath, setTeamLogoPath] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -65,29 +66,39 @@ export default function Dashboard() {
 
     const matchedRole = roles.map((id) => roleMap[id]).find(Boolean) || null;
 
+    const name = claims?.name || 'User';
+    const company = claims?.companyName || 'Unknown Team';
+    const logoPath = `/logos/${company.replace(/\s+/g, '').toLowerCase()}.png`;
+
     setUserGroup(matchedRole);
-    setUserName(claims?.name || 'User');
-    setTeamName(claims?.companyName || 'Unknown Team');
+    setUserName(name);
+    setTeamName(company);
+    setTeamLogoPath(logoPath);
     setLoading(false);
   }, [isAuthenticated, instance, router]);
-
-  if (!isAuthenticated || loading) return <Spinner />;
-
-  const teamLogoPath = `public/logos/${teamName.replace(/\s+/g, '').toLowerCase()}.png`;
 
   const handleLogout = async () => {
     await instance.logoutRedirect();
   };
 
+  const handleLogoError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = '/logos/default.png';
+  };
+
+  if (!isAuthenticated || loading) return <Spinner />;
+
   return (
     <div className="min-h-screen bg-[#a0b8c6] text-black">
       <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
         <div className="flex items-center space-x-3">
-          <img src="/logo.png" className="w-8 h-8" alt="Logo" />
+          <img src="/logo.png" className="w-8 h-8" alt="App Logo" />
           <span className="text-xl font-bold">Nextplay stats</span>
         </div>
         <div className="flex items-center space-x-4">
-          <span className="hidden md:inline">Welcome {userName} from {teamName}</span>
+          <span className="hidden md:inline">
+            Welcome {userName} from {teamName}
+          </span>
           <DropdownMenu label="Account" items={[{ label: 'Logout', onClick: handleLogout }]} />
         </div>
       </header>
@@ -105,7 +116,14 @@ export default function Dashboard() {
       </nav>
 
       <main className="flex flex-col items-center justify-center py-12 text-center">
-        <img src={teamLogoPath} alt="Team Logo" className="w-48 h-48 mb-6" />
+        {teamLogoPath && (
+          <img
+            src={teamLogoPath}
+            alt="Team Logo"
+            className="w-48 h-48 mb-6"
+            onError={handleLogoError}
+          />
+        )}
         <h1 className="text-2xl font-bold mb-4">{teamName}</h1>
         <div className="space-y-4 w-full max-w-sm">
           {reports[userGroup!]?.map((report) => (
