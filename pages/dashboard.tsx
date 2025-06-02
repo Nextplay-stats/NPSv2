@@ -3,6 +3,7 @@ import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { useEffect, useState } from 'react';
 import Spinner from '@/components/ui/spinner';
 import DropdownMenu from '@/components/DropdownMenu';
+import { InteractionRequiredAuthError } from '@azure/msal-browser';
 
 const reports = {
   Players: [{ id: 'playerStats', title: 'Player Stats' }],
@@ -38,9 +39,12 @@ export default function Dashboard() {
 
   const getCompanyNameViaGraph = async () => {
     try {
+      const account = instance.getAllAccounts()[0];
+      if (!account) throw new Error('No account found');
+
       const response = await instance.acquireTokenSilent({
         scopes: ['User.Read'],
-        account: instance.getAllAccounts()[0],
+        account,
       });
 
       const token = response.accessToken;
@@ -59,8 +63,16 @@ export default function Dashboard() {
 
       setTeamName(company);
       setTeamLogoPath(logoPath);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching profile from Graph:', err);
+
+      // If silent token acquisition fails due to consent/login required, redirect to interactive login
+      if (err instanceof InteractionRequiredAuthError) {
+        console.log('Consent required - redirecting for login...');
+        instance.loginRedirect({
+          scopes: ['User.Read'],
+        });
+      }
     }
   };
 
