@@ -35,62 +35,46 @@ export default function Dashboard() {
   const [teamName, setTeamName] = useState<string>('Unknown Team');
 
   useEffect(() => {
-    let didRedirect = false;
+    const accounts = instance.getAllAccounts();
 
-    const init = async () => {
-      try {
-        const accounts = instance.getAllAccounts();
+    if (accounts.length === 0) {
+      router.replace('/login');
+      return;
+    }
 
-        if (accounts.length === 0) {
-          didRedirect = true;
-          return;
-        }
+    const account = accounts[0];
+    const idTokenClaims = account.idTokenClaims as any;
 
-        const account = accounts[0];
-        const idTokenClaims = account.idTokenClaims as any;
+    if (!idTokenClaims) {
+      instance.logoutRedirect();
+      return;
+    }
 
-        if (!idTokenClaims) {
-          console.warn('Missing idTokenClaims');
-          didRedirect = true;
-          return;
-        }
+    const roles: string[] = Array.isArray(idTokenClaims?.roles)
+      ? idTokenClaims.roles
+      : Array.isArray(idTokenClaims?.groups)
+      ? idTokenClaims.groups
+      : [];
 
-        const roles: string[] = Array.isArray(idTokenClaims?.roles)
-          ? idTokenClaims.roles
-          : Array.isArray(idTokenClaims?.groups)
-          ? idTokenClaims.groups
-          : [];
-
-        const roleMap: Record<string, Group> = {
-          'e6be3e80-2f16-4cf6-9914-fd34c3cc90a1': 'Admin',
-          '8a39cc44-073f-4d3e-bca7-c94f8fcf5aa2': 'NBL',
-          'b1f2b8f9-b4a4-4ae2-930b-0db1580ee5b2': 'Coach',
-          '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
-        };
-
-        const matchedRole = roles.map((id) => roleMap[id]).find(Boolean);
-
-        if (!matchedRole) {
-          console.warn('No matching role in claims');
-          didRedirect = true;
-          return;
-        }
-
-        const company = idTokenClaims?.companyName || idTokenClaims?.extension_companyName || 'Unknown Team';
-
-        setUserGroup(matchedRole);
-        setUserName(idTokenClaims?.name || 'User');
-        setTeamName(company);
-      } catch (err) {
-        console.error('Dashboard init error:', err);
-        didRedirect = true;
-      } finally {
-        setLoading(false);
-        if (didRedirect) router.replace('/login');
-      }
+    const roleMap: Record<string, Group> = {
+      'e6be3e80-2f16-4cf6-9914-fd34c3cc90a1': 'Admin',
+      '8a39cc44-073f-4d3e-bca7-c94f8fcf5aa2': 'NBL',
+      'b1f2b8f9-b4a4-4ae2-930b-0db1580ee5b2': 'Coach',
+      '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
     };
 
-    init();
+    const matchedRole = roles.map((id) => roleMap[id]).find(Boolean);
+    if (!matchedRole) {
+      router.replace('/login');
+      return;
+    }
+
+    const company = idTokenClaims?.companyName || idTokenClaims?.extension_companyName || 'Unknown Team';
+
+    setUserGroup(matchedRole);
+    setUserName(idTokenClaims?.name || 'User');
+    setTeamName(company);
+    setLoading(false);
   }, [instance, router]);
 
   if (loading) return <Spinner />;
@@ -133,7 +117,9 @@ export default function Dashboard() {
 
       {/* Main content */}
       <main className="flex flex-col items-center justify-center py-12 text-center">
-        <img src={teamLogoPath} alt="Team Logo" className="w-48 h-48 mb-6" onError={(e) => (e.currentTarget.style.display = 'none')} />
+        <img src={teamLogoPath} alt="Team Logo" className="w-48 h-48 mb-6" onError={(e) => {
+          (e.target as HTMLImageElement).src = '/logos/default.png';
+        }} />
         <h1 className="text-2xl font-bold mb-4">{teamName}</h1>
         <div className="space-y-4 w-full max-w-sm">
           {reports[userGroup!]?.map((report) => (
