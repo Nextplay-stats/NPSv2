@@ -36,6 +36,34 @@ export default function Dashboard() {
   const [teamName, setTeamName] = useState('Unknown Team');
   const [teamLogoPath, setTeamLogoPath] = useState<string>('');
 
+  const getCompanyNameViaGraph = async () => {
+    try {
+      const response = await instance.acquireTokenSilent({
+        scopes: ['User.Read'],
+        account: instance.getAllAccounts()[0],
+      });
+
+      const token = response.accessToken;
+
+      const profileRes = await fetch('https://graph.microsoft.com/v1.0/me', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const profile = await profileRes.json();
+      console.log('Graph profile:', profile);
+
+      const company = profile.companyName || profile.department || 'Unknown Team';
+      const logoPath = `/logos/${company.replace(/\s+/g, '').toLowerCase()}.png`;
+
+      setTeamName(company);
+      setTeamLogoPath(logoPath);
+    } catch (err) {
+      console.error('Error fetching profile from Graph:', err);
+    }
+  };
+
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace('/login');
@@ -53,7 +81,6 @@ export default function Dashboard() {
 
     console.log("ID Token Claims:", claims);
 
-    // Map of Azure AD Group Object IDs to app roles
     const roleMap: Record<string, Group> = {
       '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': 'Admin',
       'f997e7e8-1542-49d1-a140-74873fd7d209': 'NBL',
@@ -62,21 +89,16 @@ export default function Dashboard() {
     };
 
     const groupIds: string[] = Array.isArray(claims?.groups) ? claims.groups : [];
-
     console.log("Group IDs from token:", groupIds);
 
     const matchedRole = groupIds.map((id) => roleMap[id]).find(Boolean) || null;
-
     console.log("Matched role from group IDs:", matchedRole);
 
     const name = claims?.name || 'User';
-    const company = claims?.companyName || 'Unknown Team';
-    const logoPath = `/logos/${company.replace(/\s+/g, '').toLowerCase()}.png`;
-
-    setUserGroup(matchedRole);
     setUserName(name);
-    setTeamName(company);
-    setTeamLogoPath(logoPath);
+    setUserGroup(matchedRole);
+
+    getCompanyNameViaGraph();
     setLoading(false);
   }, [isAuthenticated, instance, router]);
 
