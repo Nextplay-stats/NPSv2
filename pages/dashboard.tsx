@@ -35,14 +35,14 @@ export default function Dashboard() {
   const [teamName, setTeamName] = useState<string>('Unknown Team');
 
   useEffect(() => {
-    let shouldRedirect = false;
+    let didRedirect = false;
 
     const init = async () => {
       try {
         const accounts = instance.getAllAccounts();
 
         if (accounts.length === 0) {
-          shouldRedirect = true;
+          didRedirect = true;
           return;
         }
 
@@ -50,7 +50,8 @@ export default function Dashboard() {
         const idTokenClaims = account.idTokenClaims as any;
 
         if (!idTokenClaims) {
-          shouldRedirect = true;
+          console.warn('Missing idTokenClaims');
+          didRedirect = true;
           return;
         }
 
@@ -67,26 +68,25 @@ export default function Dashboard() {
           '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
         };
 
-        const matchedRole = roles.map((id) => roleMap[id]).find(Boolean) || null;
+        const matchedRole = roles.map((id) => roleMap[id]).find(Boolean);
 
         if (!matchedRole) {
-          shouldRedirect = true;
+          console.warn('No matching role in claims');
+          didRedirect = true;
           return;
         }
 
+        const company = idTokenClaims?.companyName || idTokenClaims?.extension_companyName || 'Unknown Team';
+
         setUserGroup(matchedRole);
         setUserName(idTokenClaims?.name || 'User');
-        setTeamName(idTokenClaims?.companyName || 'Unknown Team');
-      } catch (error) {
-        console.error('Dashboard → Error initializing user session:', error);
-        shouldRedirect = true;
+        setTeamName(company);
+      } catch (err) {
+        console.error('Dashboard init error:', err);
+        didRedirect = true;
       } finally {
         setLoading(false);
-
-        // Ensure redirect happens only once and after loading ends
-        if (shouldRedirect) {
-          router.replace('/login');
-        }
+        if (didRedirect) router.replace('/login');
       }
     };
 
@@ -133,7 +133,7 @@ export default function Dashboard() {
 
       {/* Main content */}
       <main className="flex flex-col items-center justify-center py-12 text-center">
-        <img src={teamLogoPath} alt="Team Logo" className="w-48 h-48 mb-6" />
+        <img src={teamLogoPath} alt="Team Logo" className="w-48 h-48 mb-6" onError={(e) => (e.currentTarget.style.display = 'none')} />
         <h1 className="text-2xl font-bold mb-4">{teamName}</h1>
         <div className="space-y-4 w-full max-w-sm">
           {reports[userGroup!]?.map((report) => (
