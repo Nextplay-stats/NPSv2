@@ -58,7 +58,8 @@ export default function Dashboard() {
       const profile = await profileRes.json();
       console.log('Graph profile:', profile);
 
-      const company = profile.companyName || profile.department || 'Unknown Team';
+      // Use jobTitle instead of companyName or department
+      const company = profile.jobTitle || 'Unknown Team';
       const logoPath = `/logos/${company.replace(/\s+/g, '').toLowerCase()}.png`;
 
       setTeamName(company);
@@ -66,7 +67,7 @@ export default function Dashboard() {
     } catch (err: any) {
       console.error('Error fetching profile from Graph:', err);
 
-      // If silent token acquisition fails due to consent/login required, redirect to interactive login
+      // Redirect to interactive login if consent required
       if (err instanceof InteractionRequiredAuthError) {
         console.log('Consent required - redirecting for login...');
         instance.loginRedirect({
