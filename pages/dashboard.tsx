@@ -34,7 +34,7 @@ export default function Dashboard() {
   const [userGroup, setUserGroup] = useState<Group>(null);
   const [userName, setUserName] = useState('User');
   const [teamName, setTeamName] = useState('Unknown Team');
-  const [teamLogoPath, setTeamLogoPath] = useState<string | null>(null);
+  const [teamLogoPath, setTeamLogoPath] = useState<string>('');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -51,6 +51,8 @@ export default function Dashboard() {
     const account = accounts[0];
     const claims = account.idTokenClaims as any;
 
+    console.log("ID Token Claims:", claims);
+
     const roleMap: Record<string, Group> = {
       'e6be3e80-2f16-4cf6-9914-fd34c3cc90a1': 'Admin',
       '8a39cc44-073f-4d3e-bca7-c94f8fcf5aa2': 'NBL',
@@ -64,7 +66,11 @@ export default function Dashboard() {
       ? claims.groups
       : [];
 
+    console.log("Roles/Groups:", roles);
+
     const matchedRole = roles.map((id) => roleMap[id]).find(Boolean) || null;
+
+    console.log("Matched Role:", matchedRole);
 
     const name = claims?.name || 'User';
     const company = claims?.companyName || 'Unknown Team';
@@ -81,25 +87,23 @@ export default function Dashboard() {
     await instance.logoutRedirect();
   };
 
-  const handleLogoError = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    e.currentTarget.onerror = null;
-    e.currentTarget.src = '/logos/default.png';
-  };
-
   if (!isAuthenticated || loading) return <Spinner />;
 
   return (
     <div className="min-h-screen bg-[#a0b8c6] text-black">
       <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
         <div className="flex items-center space-x-3">
-          <img src="/logo.png" className="w-8 h-8" alt="App Logo" />
+          <img src="/logo.png" className="w-8 h-8" alt="Logo" />
           <span className="text-xl font-bold">Nextplay stats</span>
         </div>
         <div className="flex items-center space-x-4">
           <span className="hidden md:inline">
             Welcome {userName} from {teamName}
           </span>
-          <DropdownMenu label="Account" items={[{ label: 'Logout', onClick: handleLogout }]} />
+          <DropdownMenu
+            label="Account"
+            items={[{ label: 'Logout', onClick: handleLogout }]}
+          />
         </div>
       </header>
 
@@ -116,17 +120,10 @@ export default function Dashboard() {
       </nav>
 
       <main className="flex flex-col items-center justify-center py-12 text-center">
-        {teamLogoPath && (
-          <img
-            src={teamLogoPath}
-            alt="Team Logo"
-            className="w-48 h-48 mb-6"
-            onError={handleLogoError}
-          />
-        )}
+        <img src={teamLogoPath} alt="Team Logo" className="w-48 h-48 mb-6" />
         <h1 className="text-2xl font-bold mb-4">{teamName}</h1>
         <div className="space-y-4 w-full max-w-sm">
-          {reports[userGroup!]?.map((report) => (
+          {userGroup && reports[userGroup]?.map((report) => (
             <button
               key={report.id}
               onClick={() => router.push(`/report/${report.id}`)}
@@ -135,6 +132,11 @@ export default function Dashboard() {
               {report.title}
             </button>
           ))}
+          {!userGroup && (
+            <p className="text-red-600 font-semibold">
+              No role matched. Please contact an administrator.
+            </p>
+          )}
         </div>
       </main>
     </div>
