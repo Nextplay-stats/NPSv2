@@ -54,10 +54,10 @@ export default function Dashboard() {
     console.log("ID Token Claims:", claims);
 
     const roleMap: Record<string, Group> = {
-      'e6be3e80-2f16-4cf6-9914-fd34c3cc90a1': 'Admin',
-      '8a39cc44-073f-4d3e-bca7-c94f8fcf5aa2': 'NBL',
-      'b1f2b8f9-b4a4-4ae2-930b-0db1580ee5b2': 'Coach',
-      '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
+      '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': 'Admin',
+      'f997e7e8-1542-49d1-a140-74873fd7d209': 'NBL',
+      '3015ed3e-0eca-4d1d-984d-51e0075bb219': 'Coach',
+      '7b72d962-8338-4081-895d-4c460e6bf59c': 'Players',
     };
 
     const groupIds: string[] = Array.isArray(claims?.groups) ? claims.groups : [];
