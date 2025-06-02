@@ -73,7 +73,7 @@ export default function Dashboard() {
 
   if (!isAuthenticated || loading) return <Spinner />;
 
-  const teamLogoPath = `/logos/${teamName.replace(/\s+/g, '').toLowerCase()}.png`;
+  const teamLogoPath = `public/logos/${teamName.replace(/\s+/g, '').toLowerCase()}.png`;
 
   const handleLogout = async () => {
     await instance.logoutRedirect();
