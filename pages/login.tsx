@@ -54,8 +54,10 @@ export default function LoginPage() {
   }, [instance, router, initialized]);
 
   const handleLogin = () => {
-    console.log('LoginPage → Redirecting...');
-    instance.loginRedirect();
+    console.log('LoginPage → Redirecting with User.Read scope...');
+    instance.loginRedirect({
+      scopes: ['User.Read'], // Request Graph API user.read scope here for consent
+    });
   };
 
   if (loading || !initialized) return <Spinner />;
