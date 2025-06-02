@@ -60,17 +60,13 @@ export default function Dashboard() {
       '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
     };
 
-    const roles: string[] = Array.isArray(claims?.roles)
-      ? claims.roles
-      : Array.isArray(claims?.groups)
-      ? claims.groups
-      : [];
+    const groupIds: string[] = Array.isArray(claims?.groups) ? claims.groups : [];
 
-    console.log("Roles/Groups:", roles);
+    console.log("Group IDs from token:", groupIds);
 
-    const matchedRole = roles.map((id) => roleMap[id]).find(Boolean) || null;
+    const matchedRole = groupIds.map((id) => roleMap[id]).find(Boolean) || null;
 
-    console.log("Matched Role:", matchedRole);
+    console.log("Matched role from group IDs:", matchedRole);
 
     const name = claims?.name || 'User';
     const company = claims?.companyName || 'Unknown Team';
