@@ -27,13 +27,13 @@ type Group = 'Players' | 'Coach' | 'NBL' | 'Admin' | null;
 
 export default function Dashboard() {
   const { instance } = useMsal();
-  const router = useRouter();
   const isAuthenticated = useIsAuthenticated();
+  const router = useRouter();
 
   const [loading, setLoading] = useState(true);
   const [userGroup, setUserGroup] = useState<Group>(null);
-  const [userName, setUserName] = useState<string>('User');
-  const [teamName, setTeamName] = useState<string>('Unknown Team');
+  const [userName, setUserName] = useState('User');
+  const [teamName, setTeamName] = useState('Unknown Team');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -41,41 +41,37 @@ export default function Dashboard() {
       return;
     }
 
-    const init = () => {
-      const accounts = instance.getAllAccounts();
-      if (accounts.length === 0) {
-        router.replace('/login');
-        return;
-      }
+    const accounts = instance.getAllAccounts();
+    if (!accounts.length) {
+      router.replace('/login');
+      return;
+    }
 
-      const account = accounts[0];
-      const claims = account.idTokenClaims as any;
+    const account = accounts[0];
+    const claims = account.idTokenClaims as any;
 
-      const roles: string[] = Array.isArray(claims?.roles)
-        ? claims.roles
-        : Array.isArray(claims?.groups)
-        ? claims.groups
-        : [];
-
-      const roleMap: Record<string, Group> = {
-        'e6be3e80-2f16-4cf6-9914-fd34c3cc90a1': 'Admin',
-        '8a39cc44-073f-4d3e-bca7-c94f8fcf5aa2': 'NBL',
-        'b1f2b8f9-b4a4-4ae2-930b-0db1580ee5b2': 'Coach',
-        '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
-      };
-
-      const matchedRole = roles.map((id) => roleMap[id]).find(Boolean) || null;
-
-      setUserGroup(matchedRole);
-      setUserName(claims?.name || 'User');
-      setTeamName(claims?.companyName || 'Unknown Team');
-      setLoading(false);
+    const roleMap: Record<string, Group> = {
+      'e6be3e80-2f16-4cf6-9914-fd34c3cc90a1': 'Admin',
+      '8a39cc44-073f-4d3e-bca7-c94f8fcf5aa2': 'NBL',
+      'b1f2b8f9-b4a4-4ae2-930b-0db1580ee5b2': 'Coach',
+      '9ddbc670-68e3-4fc4-a839-5376c6e36a8d': 'Players',
     };
 
-    init();
+    const roles: string[] = Array.isArray(claims?.roles)
+      ? claims.roles
+      : Array.isArray(claims?.groups)
+      ? claims.groups
+      : [];
+
+    const matchedRole = roles.map((id) => roleMap[id]).find(Boolean) || null;
+
+    setUserGroup(matchedRole);
+    setUserName(claims?.name || 'User');
+    setTeamName(claims?.companyName || 'Unknown Team');
+    setLoading(false);
   }, [isAuthenticated, instance, router]);
 
-  if (loading) return <Spinner />;
+  if (!isAuthenticated || loading) return <Spinner />;
 
   const teamLogoPath = `/logos/${teamName.replace(/\s+/g, '').toLowerCase()}.png`;
 
