@@ -35,12 +35,14 @@ export default function Dashboard() {
   const [teamName, setTeamName] = useState<string>('Unknown Team');
 
   useEffect(() => {
+    let shouldRedirect = false;
+
     const init = async () => {
       try {
         const accounts = instance.getAllAccounts();
 
         if (accounts.length === 0) {
-          router.replace('/login');
+          shouldRedirect = true;
           return;
         }
 
@@ -48,7 +50,7 @@ export default function Dashboard() {
         const idTokenClaims = account.idTokenClaims as any;
 
         if (!idTokenClaims) {
-          router.replace('/login');
+          shouldRedirect = true;
           return;
         }
 
@@ -68,17 +70,23 @@ export default function Dashboard() {
         const matchedRole = roles.map((id) => roleMap[id]).find(Boolean) || null;
 
         if (!matchedRole) {
-          router.replace('/login');
+          shouldRedirect = true;
           return;
         }
 
         setUserGroup(matchedRole);
         setUserName(idTokenClaims?.name || 'User');
         setTeamName(idTokenClaims?.companyName || 'Unknown Team');
-        setLoading(false);
       } catch (error) {
         console.error('Dashboard → Error initializing user session:', error);
-        router.replace('/login');
+        shouldRedirect = true;
+      } finally {
+        setLoading(false);
+
+        // Ensure redirect happens only once and after loading ends
+        if (shouldRedirect) {
+          router.replace('/login');
+        }
       }
     };
 
