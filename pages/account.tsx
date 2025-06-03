@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+// src/pages/account.tsx
+import { useEffect, useState, useContext } from 'react';
 import { useRouter } from 'next/router';
 import DropdownMenu from '@/components/DropdownMenu';
-import useDarkMode from '@/components/useDarkMode';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
 import Spinner from '@/components/ui/spinner';
+import { ThemeContext } from '@/context/ThemeContext';
 
 export default function Account() {
   const router = useRouter();
-  const [darkMode] = useDarkMode();
+  const { darkMode } = useContext(ThemeContext);
   const { instance } = useMsal();
   const isAuthenticated = useIsAuthenticated();
 
@@ -71,8 +72,8 @@ export default function Account() {
     getUserDetails().finally(() => setLoading(false));
   }, [isAuthenticated, instance, router]);
 
-  const handleLogout = () => {
-    alert('Logout not implemented yet.');
+  const handleLogout = async () => {
+    await instance.logoutRedirect();
   };
 
   if (!isAuthenticated || loading) return <Spinner />;
@@ -98,7 +99,7 @@ export default function Account() {
 
       <main className="py-12 max-w-xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Account Details</h1>
-        <div className="bg-white text-black rounded-lg shadow-md p-6 space-y-4">
+        <div className={`rounded-lg shadow-md p-6 space-y-4 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
           <div>
             <p className="font-semibold">Name:</p>
             <p>{userName}</p>
