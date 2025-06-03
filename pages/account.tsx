@@ -105,22 +105,22 @@ export default function Account() {
       </header>
 
       <main className="py-12 max-w-xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6">{t('accountDetails')}</h1>
+        <h1 className="text-2xl font-bold mb-6">{t('Account Details')}</h1>
         <div className="bg-white text-black rounded-lg shadow-md p-6 space-y-4">
           <div>
-            <p className="font-semibold">{t('name')}:</p>
+            <p className="font-semibold">{t('Name')}:</p>
             <p>{userName}</p>
           </div>
           <div>
-            <p className="font-semibold">{t('email')}:</p>
+            <p className="font-semibold">{t('Email')}:</p>
             <p>{userEmail}</p>
           </div>
           <div>
-            <p className="font-semibold">{t('role')}:</p>
+            <p className="font-semibold">{t('Role')}:</p>
             <p>{userRole ? t(`role${userRole}`) : t('roleUnknown')}</p>
           </div>
           <div>
-            <p className="font-semibold">{t('team')}:</p>
+            <p className="font-semibold">{t('Team')}:</p>
             <p>{teamName}</p>
           </div>
         </div>
