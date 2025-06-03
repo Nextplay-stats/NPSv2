@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useRouter } from 'next/router';
 import DropdownMenu from '@/components/DropdownMenu';
-import useDarkMode from '@/components/useDarkMode';
+import { useMsal } from '@azure/msal-react';
+import { ThemeContext } from '@/context/ThemeContext';
 
 const faqs = [
   {
@@ -44,7 +45,9 @@ const faqs = [
 
 export default function Help() {
   const router = useRouter();
-  const [darkMode] = useDarkMode();
+  const { darkMode } = useContext(ThemeContext);
+  const { instance } = useMsal();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [newQuestion, setNewQuestion] = useState('');
 
@@ -75,6 +78,10 @@ export default function Help() {
       faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleLogout = () => {
+    instance.logoutRedirect();
+  };
+
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}>
       <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
@@ -89,7 +96,7 @@ export default function Help() {
             { label: 'Account', onClick: () => router.push('/account') },
             { label: 'Settings', onClick: () => router.push('/settings') },
             { label: 'Help', onClick: () => router.push('/help') },
-            { label: 'Logout', onClick: () => router.push('/api/auth/logout') },
+            { label: 'Logout', onClick: handleLogout },
           ]}
         />
       </header>
@@ -105,7 +112,7 @@ export default function Help() {
           className="w-full mb-6 px-4 py-2 rounded border border-gray-300 text-black"
         />
 
-        <div className="bg-white text-black rounded-lg shadow-md p-6 mb-8 space-y-4">
+        <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'} rounded-lg shadow-md p-6 mb-8 space-y-4`}>
           {filteredFaqs.length > 0 ? (
             filteredFaqs.map((faq, index) => (
               <div key={index} className="border-b pb-3">
@@ -118,13 +125,13 @@ export default function Help() {
           )}
         </div>
 
-        <div className="bg-white text-black rounded-lg shadow-md p-6">
+        <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'} rounded-lg shadow-md p-6`}>
           <h2 className="text-lg font-semibold mb-2">Ask a Question</h2>
           <textarea
             value={newQuestion}
             onChange={(e) => setNewQuestion(e.target.value)}
             placeholder="Type your question here..."
-            className="w-full border border-gray-300 p-2 rounded mb-4"
+            className="w-full border border-gray-300 p-2 rounded mb-4 text-black"
             rows={3}
           />
           <button
