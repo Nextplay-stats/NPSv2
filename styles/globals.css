@@ -16,3 +16,17 @@ body[data-text-size='medium'] {
 body[data-text-size='large'] {
   font-size: 1.25rem;
 }
+
+body[data-contrast='high'] {
+  background-color: black !important;
+  color: yellow !important;
+  
+  /* Customize links, buttons, etc. for high contrast */
+  a, button {
+    color: yellow !important;
+    background-color: black !important;
+    border: 2px solid yellow !important;
+  }
+
+  /* Add other high contrast styles as needed */
+}
