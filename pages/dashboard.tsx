@@ -7,22 +7,25 @@ import DropdownMenu from '@/components/DropdownMenu';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
 import useDarkMode from '@/components/useDarkMode';
 
+import { useTranslation } from 'next-i18next';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+
 const reports = {
-  Players: [{ id: 'playerStats', title: 'Player Stats' }],
+  Players: [{ id: 'playerStats', titleKey: 'playerStats' }],
   Coach: [
-    { id: 'teamComparison', title: 'Team Comparison' },
-    { id: 'playerStats', title: 'Player Stats' },
+    { id: 'teamComparison', titleKey: 'teamComparison' },
+    { id: 'playerStats', titleKey: 'playerStats' },
   ],
   NBL: [
-    { id: 'nblOverview', title: 'NBL Overview' },
-    { id: 'teamComparison', title: 'Team Comparison' },
-    { id: 'playerStats', title: 'Player Stats' },
+    { id: 'nblOverview', titleKey: 'nblOverview' },
+    { id: 'teamComparison', titleKey: 'teamComparison' },
+    { id: 'playerStats', titleKey: 'playerStats' },
   ],
   Admin: [
-    { id: 'adminPanel', title: 'Admin Panel' },
-    { id: 'nblOverview', title: 'NBL Overview' },
-    { id: 'teamComparison', title: 'Team Comparison' },
-    { id: 'playerStats', title: 'Player Stats' },
+    { id: 'adminPanel', titleKey: 'adminPanel' },
+    { id: 'nblOverview', titleKey: 'nblOverview' },
+    { id: 'teamComparison', titleKey: 'teamComparison' },
+    { id: 'playerStats', titleKey: 'playerStats' },
   ],
 };
 
@@ -34,10 +37,12 @@ export default function Dashboard() {
   const router = useRouter();
   const [darkMode] = useDarkMode();
 
+  const { t } = useTranslation('common');
+
   const [loading, setLoading] = useState(true);
   const [userGroup, setUserGroup] = useState<Group>(null);
   const [userName, setUserName] = useState('User');
-  const [teamName, setTeamName] = useState('Unknown Team');
+  const [teamName, setTeamName] = useState(t('unknownTeam'));
   const [teamLogoPath, setTeamLogoPath] = useState<string>('');
 
   const getCompanyNameViaGraph = async () => {
@@ -60,7 +65,7 @@ export default function Dashboard() {
 
       const profile = await profileRes.json();
 
-      const company = profile.jobTitle || 'Unknown Team';
+      const company = profile.jobTitle || t('unknownTeam');
       const logoPath = `/logos/${company.replace(/\s+/g, '').toLowerCase()}.png`;
 
       setTeamName(company);
@@ -100,13 +105,13 @@ export default function Dashboard() {
     const groupIds: string[] = Array.isArray(claims?.groups) ? claims.groups : [];
     const matchedRole = groupIds.map((id) => roleMap[id]).find(Boolean) || null;
 
-    const name = claims?.name || 'User';
+    const name = claims?.name || t('user');
     setUserName(name);
     setUserGroup(matchedRole);
 
     getCompanyNameViaGraph();
     setLoading(false);
-  }, [isAuthenticated, instance, router]);
+  }, [isAuthenticated, instance, router, t]);
 
   const handleLogout = async () => {
     await instance.logoutRedirect();
@@ -123,35 +128,35 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center space-x-4">
           <span className="hidden md:inline">
-            Welcome {userName} from {teamName}
+            {t('welcomeMessage', { userName, teamName })}
           </span>
           <DropdownMenu
-            label="Account"
+            label={t('account')}
             items={[
-              { label: 'Dashboard', onClick: () => router.push('/dashboard') },
-              { label: 'Account', onClick: () => router.push('/account') },
-              { label: 'Settings', onClick: () => router.push('/settings') },
-              { label: 'Help', onClick: () => router.push('/help') },
-              { label: 'Logout', onClick: handleLogout },
+              { label: t('dashboard'), onClick: () => router.push('/dashboard') },
+              { label: t('account'), onClick: () => router.push('/account') },
+              { label: t('settings'), onClick: () => router.push('/settings') },
+              { label: t('help'), onClick: () => router.push('/help') },
+              { label: t('logout'), onClick: handleLogout },
             ]}
           />
         </div>
       </header>
 
       <nav className={`flex justify-around ${darkMode ? 'bg-gray-800 text-white' : 'bg-[#587c92] text-white'} text-sm`}>
-        {reports[userGroup!]?.map((report) => (
+        {userGroup && reports[userGroup]?.map((report) => (
           <button
             key={report.id}
             onClick={() => router.push(`/report/${report.id}`)}
             className="py-2 px-4 hover:bg-[#3e5e73]"
           >
-            {report.title}
+            {t(report.titleKey)}
           </button>
         ))}
       </nav>
 
       <main className="flex flex-col items-center justify-center py-12 text-center">
-        <img src={teamLogoPath} alt="Team Logo" className="w-48 h-48 mb-6" />
+        <img src={teamLogoPath} alt={t('teamLogoAlt')} className="w-48 h-48 mb-6" />
         <h1 className="text-2xl font-bold mb-4">{teamName}</h1>
         <div className="space-y-4 w-full max-w-sm">
           {userGroup && reports[userGroup]?.map((report) => (
@@ -160,16 +165,25 @@ export default function Dashboard() {
               onClick={() => router.push(`/report/${report.id}`)}
               className="w-full py-3 px-6 bg-[#3e5e73] text-white rounded-md hover:bg-[#2d4a5e] transition"
             >
-              {report.title}
+              {t(report.titleKey)}
             </button>
           ))}
           {!userGroup && (
             <p className="text-red-600 font-semibold">
-              No role matched. Please contact an administrator.
+              {t('noRoleMatched')}
             </p>
           )}
         </div>
       </main>
     </div>
   );
+}
+
+// Support for i18n translations and locale in static props
+export async function getStaticProps({ locale }: { locale: string }) {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale, ['common'])),
+    },
+  };
 }
