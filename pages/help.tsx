@@ -9,42 +9,15 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 const faqs = [
-  {
-    questionKey: 'faq.resetPasswordQuestion',
-    answerKey: 'faq.resetPasswordAnswer',
-  },
-  {
-    questionKey: 'faq.darkModeQuestion',
-    answerKey: 'faq.darkModeAnswer',
-  },
-  {
-    questionKey: 'faq.accessReportsQuestion',
-    answerKey: 'faq.accessReportsAnswer',
-  },
-  {
-    questionKey: 'faq.exportPlayerStatsQuestion',
-    answerKey: 'faq.exportPlayerStatsAnswer',
-  },
-  {
-    questionKey: 'faq.updateAccountDetailsQuestion',
-    answerKey: 'faq.updateAccountDetailsAnswer',
-  },
-  {
-    questionKey: 'faq.logoutQuestion',
-    answerKey: 'faq.logoutAnswer',
-  },
-  {
-    questionKey: 'faq.unknownTeamQuestion',
-    answerKey: 'faq.unknownTeamAnswer',
-  },
-  {
-    questionKey: 'faq.reportErrorQuestion',
-    answerKey: 'faq.reportErrorAnswer',
-  },
-  {
-    questionKey: 'faq.submitFeedbackQuestion',
-    answerKey: 'faq.submitFeedbackAnswer',
-  },
+  { questionKey: 'faq.resetPasswordQuestion', answerKey: 'faq.resetPasswordAnswer' },
+  { questionKey: 'faq.darkModeQuestion', answerKey: 'faq.darkModeAnswer' },
+  { questionKey: 'faq.accessReportsQuestion', answerKey: 'faq.accessReportsAnswer' },
+  { questionKey: 'faq.exportPlayerStatsQuestion', answerKey: 'faq.exportPlayerStatsAnswer' },
+  { questionKey: 'faq.updateAccountDetailsQuestion', answerKey: 'faq.updateAccountDetailsAnswer' },
+  { questionKey: 'faq.logoutQuestion', answerKey: 'faq.logoutAnswer' },
+  { questionKey: 'faq.unknownTeamQuestion', answerKey: 'faq.unknownTeamAnswer' },
+  { questionKey: 'faq.reportErrorQuestion', answerKey: 'faq.reportErrorAnswer' },
+  { questionKey: 'faq.submitFeedbackQuestion', answerKey: 'faq.submitFeedbackAnswer' },
 ];
 
 export default function Help() {
@@ -67,21 +40,21 @@ export default function Help() {
       });
 
       if (res.ok) {
-        alert(t('questionSent'));
+        alert(t('questionSent').toString());
         setNewQuestion('');
       } else {
-        alert(t('questionSendFailed'));
+        alert(t('questionSendFailed').toString());
       }
     } catch (err) {
       console.error(err);
-      alert(t('questionSendError'));
+      alert(t('questionSendError').toString());
     }
   };
 
   const filteredFaqs = faqs.filter(
     (faq) =>
-      t(faq.questionKey).toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t(faq.answerKey).toLowerCase().includes(searchTerm.toLowerCase())
+      t(faq.questionKey).toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t(faq.answerKey).toString().toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleLogout = () => {
@@ -92,7 +65,7 @@ export default function Help() {
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}>
       <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
         <div className="flex items-center space-x-3">
-          <img src="/logo.png" className="w-8 h-8" alt={t('logoAlt')} />
+          <img src="/logo.png" className="w-8 h-8" alt={t('logoAlt')?.toString() || 'Logo'} />
           <span className="text-xl font-bold">Nextplay stats</span>
         </div>
         <DropdownMenu
@@ -112,11 +85,11 @@ export default function Help() {
 
         <input
           type="text"
-          placeholder={t('searchFaqsPlaceholder')}
+          placeholder={t('searchFaqsPlaceholder')?.toString()}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full mb-6 px-4 py-2 rounded border border-gray-300 text-black"
-          aria-label={t('searchFaqsAriaLabel')}
+          aria-label={t('searchFaqsAriaLabel')?.toString()}
         />
 
         <div className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'} rounded-lg shadow-md p-6 mb-8 space-y-4`}>
@@ -137,10 +110,10 @@ export default function Help() {
           <textarea
             value={newQuestion}
             onChange={(e) => setNewQuestion(e.target.value)}
-            placeholder={t('typeYourQuestionHere')}
+            placeholder={t('typeYourQuestionHere')?.toString()}
             className="w-full border border-gray-300 p-2 rounded mb-4 text-black"
             rows={3}
-            aria-label={t('askQuestion')}
+            aria-label={t('askQuestion')?.toString()}
           />
           <button
             type="button"
@@ -155,7 +128,6 @@ export default function Help() {
   );
 }
 
-// i18n support for locale
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
     props: {
