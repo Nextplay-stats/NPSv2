@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import DropdownMenu from '@/components/DropdownMenu';
-import useDarkMode from '@/hooks/useDarkMode';
+import useDarkMode from '@src/hooks/useDarkMode';
 
 const faqs = [
   { question: 'How do I reset my password?', answer: 'Please contact your admin for a reset link.' },
