@@ -1,7 +1,7 @@
 //// pages/account.tsx
 import { useRouter } from 'next/router';
 import DropdownMenu from '@/components/DropdownMenu';
-import useDarkMode from '@/hooks/useDarkMode';
+import useDarkMode from '@/components/useDarkMode';
 
 export default function Account() {
   const router = useRouter();
