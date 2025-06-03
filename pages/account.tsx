@@ -18,6 +18,7 @@ export default function Account() {
           label="Account"
           items={[
             { label: 'Dashboard', onClick: () => router.push('/dashboard') },
+            { label: 'Dashboard', onClick: () => router.push('/account') },
             { label: 'Settings', onClick: () => router.push('/settings') },
             { label: 'Help', onClick: () => router.push('/help') },
             { label: 'Logout', onClick: handleLogout },
