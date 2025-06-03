@@ -6,8 +6,10 @@ import { MsalProvider } from '@azure/msal-react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { appWithTranslation } from 'next-i18next';
 import nextI18NextConfig from '../next-i18next.config';
+import useTextSize from '@/components/useTextSize';  // import your hook
+import { useEffect } from 'react';
 
-// Ensure env variables exist, else fallback or throw error
+// Env checks
 const clientId = process.env.NEXT_PUBLIC_CLIENT_ID;
 const tenantId = process.env.NEXT_PUBLIC_TENANT_ID;
 const redirectUri = process.env.NEXT_PUBLIC_REDIRECT_URI ?? 'http://localhost:3000/login';
@@ -22,18 +24,32 @@ const msalConfig: Configuration = {
     redirectUri,
   },
   cache: {
-    cacheLocation: 'localStorage', // persist login across sessions
-    storeAuthStateInCookie: false, // set to true if issues in IE11 or Edge
+    cacheLocation: 'localStorage',
+    storeAuthStateInCookie: false,
   },
 };
 
 const msalInstance = new PublicClientApplication(msalConfig);
 
 function App({ Component, pageProps }: AppProps) {
+  // Use your text size hook here to get and set textSize
+  const [textSize, setTextSize] = useTextSize();
+
+  // Optional: sync from localStorage on mount if your hook doesn't already
+  useEffect(() => {
+    const savedSize = localStorage.getItem('textSize') as 'small' | 'medium' | 'large' | null;
+    if (savedSize && savedSize !== textSize) {
+      setTextSize(savedSize);
+    }
+  }, []);
+
   return (
     <MsalProvider instance={msalInstance}>
       <ThemeProvider>
-        <Component {...pageProps} />
+        {/* Apply data-text-size attribute globally */}
+        <div data-text-size={textSize}>
+          <Component {...pageProps} />
+        </div>
       </ThemeProvider>
     </MsalProvider>
   );
