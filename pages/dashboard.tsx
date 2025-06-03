@@ -36,13 +36,12 @@ export default function Dashboard() {
   const isAuthenticated = useIsAuthenticated();
   const router = useRouter();
   const [darkMode] = useDarkMode();
-
   const { t } = useTranslation('common');
 
   const [loading, setLoading] = useState(true);
   const [userGroup, setUserGroup] = useState<Group>(null);
   const [userName, setUserName] = useState('User');
-  const [teamName, setTeamName] = useState(t('unknownTeam'));
+  const [teamName, setTeamName] = useState('');
   const [teamLogoPath, setTeamLogoPath] = useState<string>('');
 
   const getCompanyNameViaGraph = async () => {
@@ -65,7 +64,7 @@ export default function Dashboard() {
 
       const profile = await profileRes.json();
 
-      const company = profile.jobTitle || t('unknownTeam');
+      const company = profile.jobTitle || t('unknownTeam') || 'Unknown';
       const logoPath = `/logos/${company.replace(/\s+/g, '').toLowerCase()}.png`;
 
       setTeamName(company);
@@ -105,7 +104,7 @@ export default function Dashboard() {
     const groupIds: string[] = Array.isArray(claims?.groups) ? claims.groups : [];
     const matchedRole = groupIds.map((id) => roleMap[id]).find(Boolean) || null;
 
-    const name = claims?.name || t('user');
+    const name = claims?.name || t('user') || 'User';
     setUserName(name);
     setUserGroup(matchedRole);
 
@@ -156,7 +155,11 @@ export default function Dashboard() {
       </nav>
 
       <main className="flex flex-col items-center justify-center py-12 text-center">
-        <img src={teamLogoPath} alt={t('teamLogoAlt')} className="w-48 h-48 mb-6" />
+        <img
+          src={teamLogoPath}
+          alt={t('teamLogoAlt')?.toString() || 'Team Logo'}
+          className="w-48 h-48 mb-6"
+        />
         <h1 className="text-2xl font-bold mb-4">{teamName}</h1>
         <div className="space-y-4 w-full max-w-sm">
           {userGroup && reports[userGroup]?.map((report) => (
@@ -179,7 +182,6 @@ export default function Dashboard() {
   );
 }
 
-// Support for i18n translations and locale in static props
 export async function getStaticProps({ locale }: { locale: string }) {
   return {
     props: {
