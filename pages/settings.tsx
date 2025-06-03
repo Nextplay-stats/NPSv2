@@ -1,14 +1,17 @@
-// pages/settings.tsx
-import { useState } from 'react';
-import DropdownMenu from '@/components/DropdownMenu';
 import { useRouter } from 'next/router';
+import DropdownMenu from '@/components/DropdownMenu';
+import useDarkMode from '@/components/useDarkMode';
 
 export default function Settings() {
-  const [darkMode, setDarkMode] = useState(false);
   const router = useRouter();
+  const [darkMode, setDarkMode] = useDarkMode();
 
   const handleSave = () => {
     alert('Settings saved!');
+  };
+
+  const handleLogout = () => {
+    alert('Logout not implemented yet.');
   };
 
   return (
@@ -26,7 +29,6 @@ export default function Settings() {
             { label: 'Settings', onClick: () => router.push('/settings') },
             { label: 'Help', onClick: () => router.push('/help') },
             { label: 'Logout', onClick: handleLogout },
-            { label: 'Logout', onClick: () => alert('Logout not implemented yet.') },
           ]}
         />
       </header>
