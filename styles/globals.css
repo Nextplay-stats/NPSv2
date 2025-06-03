@@ -5,17 +5,19 @@
 body {
   @apply bg-gradient-to-b from-blue-900 to-blue-600 text-white min-h-screen;
 }
-body[data-text-size='small'] {
-  font-size: 0.85rem;
+
+[data-text-size="small"] {
+  font-size: 0.875rem; /* 14px */
 }
 
-body[data-text-size='medium'] {
-  font-size: 1rem;
+[data-text-size="medium"] {
+  font-size: 1rem; /* 16px */
 }
 
-body[data-text-size='large'] {
-  font-size: 1.25rem;
+[data-text-size="large"] {
+  font-size: 1.125rem; /* 18px */
 }
+
 
 body[data-contrast='high'] {
   background-color: black !important;
