@@ -4,6 +4,7 @@ import type { AppProps } from 'next/app';
 import { PublicClientApplication } from '@azure/msal-browser';
 import { MsalProvider } from '@azure/msal-react';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { SettingsProvider } from '@/context/SettingsContext'; // <-- import the settings provider
 
 const clientId = process.env.NEXT_PUBLIC_CLIENT_ID;
 const tenantId = process.env.NEXT_PUBLIC_TENANT_ID;
@@ -32,7 +33,9 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <MsalProvider instance={msalInstance}>
       <ThemeProvider>
-        <Component {...pageProps} />
+        <SettingsProvider> {/* <-- wrap here */}
+          <Component {...pageProps} />
+        </SettingsProvider>
       </ThemeProvider>
     </MsalProvider>
   );
