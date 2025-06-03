@@ -58,7 +58,6 @@ export default function Dashboard() {
       });
 
       const profile = await profileRes.json();
-      console.log('Graph profile:', profile);
 
       const company = profile.jobTitle || 'Unknown Team';
       const logoPath = `/logos/${company.replace(/\s+/g, '').toLowerCase()}.png`;
@@ -68,7 +67,6 @@ export default function Dashboard() {
     } catch (err: any) {
       console.error('Error fetching profile from Graph:', err);
       if (err instanceof InteractionRequiredAuthError) {
-        console.log('Consent required - redirecting for login...');
         instance.loginRedirect({
           scopes: ['User.Read'],
         });
@@ -127,14 +125,13 @@ export default function Dashboard() {
             Welcome {userName} from {teamName}
           </span>
           <DropdownMenu
-          label="Account"
-          items={[
-            { label: 'Dashboard', onClick: () => router.push('/dashboard') },
-            { label: 'Account', onClick: () => router.push('/account') },
-            { label: 'Settings', onClick: () => router.push('/settings') },
-            { label: 'Help', onClick: () => router.push('/help') },
-            { label: 'Logout', onClick: handleLogout },
-            { label: 'Logout', onClick: () => alert('Logout not implemented yet.') },
+            label="Account"
+            items={[
+              { label: 'Dashboard', onClick: () => router.push('/dashboard') },
+              { label: 'Account', onClick: () => router.push('/account') },
+              { label: 'Settings', onClick: () => router.push('/settings') },
+              { label: 'Help', onClick: () => router.push('/help') },
+              { label: 'Logout', onClick: handleLogout },
             ]}
           />
         </div>
