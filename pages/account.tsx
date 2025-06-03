@@ -1,11 +1,10 @@
-//// pages/account.tsx
 import { useRouter } from 'next/router';
 import DropdownMenu from '@/components/DropdownMenu';
-import useDarkMode from '@/components/useDarkMode';
+import useDarkMode from '@/components/useDarkMode'; // or '@/hooks/useDarkMode' if that is correct
 
 export default function Account() {
   const router = useRouter();
-  const { darkMode, setDarkMode } = useDarkMode();
+  const [darkMode, setDarkMode] = useDarkMode();
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}>
@@ -21,7 +20,6 @@ export default function Account() {
             { label: 'Account', onClick: () => router.push('/account') },
             { label: 'Settings', onClick: () => router.push('/settings') },
             { label: 'Help', onClick: () => router.push('/help') },
-            { label: 'Logout', onClick: handleLogout },
             { label: 'Logout', onClick: () => alert('Logout not implemented yet.') },
           ]}
         />
