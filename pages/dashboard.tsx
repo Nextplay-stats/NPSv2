@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Spinner from '@/components/ui/spinner';
 import DropdownMenu from '@/components/DropdownMenu';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
+import useDarkMode from '@/hooks/useDarkMode';
 
 const reports = {
   Players: [{ id: 'playerStats', title: 'Player Stats' }],
@@ -30,6 +31,7 @@ export default function Dashboard() {
   const { instance } = useMsal();
   const isAuthenticated = useIsAuthenticated();
   const router = useRouter();
+  const [darkMode] = useDarkMode();
 
   const [loading, setLoading] = useState(true);
   const [userGroup, setUserGroup] = useState<Group>(null);
@@ -89,8 +91,6 @@ export default function Dashboard() {
     const account = accounts[0];
     const claims = account.idTokenClaims as any;
 
-    console.log("ID Token Claims:", claims);
-
     const roleMap: Record<string, Group> = {
       '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': 'Admin',
       'f997e7e8-1542-49d1-a140-74873fd7d209': 'NBL',
@@ -99,10 +99,7 @@ export default function Dashboard() {
     };
 
     const groupIds: string[] = Array.isArray(claims?.groups) ? claims.groups : [];
-    console.log("Group IDs from token:", groupIds);
-
     const matchedRole = groupIds.map((id) => roleMap[id]).find(Boolean) || null;
-    console.log("Matched role from group IDs:", matchedRole);
 
     const name = claims?.name || 'User';
     setUserName(name);
@@ -119,7 +116,7 @@ export default function Dashboard() {
   if (!isAuthenticated || loading) return <Spinner />;
 
   return (
-    <div className="min-h-screen bg-[#a0b8c6] text-black">
+    <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}>
       <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
         <div className="flex items-center space-x-3">
           <img src="/logo.png" className="w-8 h-8" alt="Logo" />
@@ -141,7 +138,7 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <nav className="flex justify-around bg-[#587c92] text-white text-sm">
+      <nav className={`flex justify-around ${darkMode ? 'bg-gray-800 text-white' : 'bg-[#587c92] text-white'} text-sm`}>
         {reports[userGroup!]?.map((report) => (
           <button
             key={report.id}
