@@ -5,7 +5,7 @@ import { PublicClientApplication } from '@azure/msal-browser';
 import { MsalProvider } from '@azure/msal-react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { appWithTranslation } from 'next-i18next';
-import nextI18NextConfig from '../../next-i18next.config'; // adjust path as needed
+import nextI18NextConfig from '../next-i18next.config';
 
 const clientId = process.env.NEXT_PUBLIC_CLIENT_ID;
 const tenantId = process.env.NEXT_PUBLIC_TENANT_ID;
