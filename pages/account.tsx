@@ -9,6 +9,8 @@ import Spinner from '@/components/ui/spinner';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
+type Group = 'Players' | 'Coach' | 'NBL' | 'Admin' | null;
+
 export default function Account() {
   const router = useRouter();
   const [darkMode] = useDarkMode();
@@ -20,8 +22,8 @@ export default function Account() {
   const [loading, setLoading] = useState(true);
   const [userName, setUserName] = useState('User');
   const [userEmail, setUserEmail] = useState('');
-  const [userRole, setUserRole] = useState('');
-  const [teamName, setTeamName] = useState('Unknown Team');
+  const [userRole, setUserRole] = useState<Group>(null);
+  const [teamName, setTeamName] = useState(t('unknownTeam'));
 
   const getUserDetails = async () => {
     try {
@@ -62,15 +64,16 @@ export default function Account() {
     const account = instance.getAllAccounts()[0];
     const claims = account?.idTokenClaims as any;
 
-    const roleMap: Record<string, string> = {
-      '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': t('roleAdmin'),
-      'f997e7e8-1542-49d1-a140-74873fd7d209': t('roleNBL'),
-      '3015ed3e-0eca-4d1d-984d-51e0075bb219': t('roleCoach'),
-      '7b72d962-8338-4081-895d-4c460e6bf59c': t('rolePlayer'),
+    // Role mapping identical to dashboard
+    const roleMap: Record<string, Group> = {
+      '1057e1d0-2154-48e8-9ea5-88c8dbab55f3': 'Admin',
+      'f997e7e8-1542-49d1-a140-74873fd7d209': 'NBL',
+      '3015ed3e-0eca-4d1d-984d-51e0075bb219': 'Coach',
+      '7b72d962-8338-4081-895d-4c460e6bf59c': 'Players',
     };
 
     const groupIds: string[] = Array.isArray(claims?.groups) ? claims.groups : [];
-    const matchedRole = groupIds.map((id) => roleMap[id]).find(Boolean) || t('roleUnknown');
+    const matchedRole = groupIds.map((id) => roleMap[id]).find(Boolean) || null;
 
     setUserRole(matchedRole);
     getUserDetails().finally(() => setLoading(false));
@@ -114,7 +117,7 @@ export default function Account() {
           </div>
           <div>
             <p className="font-semibold">{t('role')}:</p>
-            <p>{userRole}</p>
+            <p>{userRole ? t(`role${userRole}`) : t('roleUnknown')}</p>
           </div>
           <div>
             <p className="font-semibold">{t('team')}:</p>
