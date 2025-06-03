@@ -5,3 +5,14 @@
 body {
   @apply bg-gradient-to-b from-blue-900 to-blue-600 text-white min-h-screen;
 }
+body[data-text-size='small'] {
+  font-size: 0.85rem;
+}
+
+body[data-text-size='medium'] {
+  font-size: 1rem;
+}
+
+body[data-text-size='large'] {
+  font-size: 1.25rem;
+}
