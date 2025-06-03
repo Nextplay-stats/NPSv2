@@ -1,21 +1,16 @@
-// src/hooks/useDarkMode.ts
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
-const useDarkMode = (): [boolean, React.Dispatch<React.SetStateAction<boolean>>] => {
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    const savedMode = localStorage.getItem('darkMode');
-    if (savedMode !== null) {
-      setDarkMode(savedMode === 'true');
+export default function useDarkMode(): [boolean, (value: boolean) => void] {
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('darkMode') === 'true';
     }
-  }, []);
+    return false;
+  });
 
   useEffect(() => {
-    localStorage.setItem('darkMode', darkMode.toString());
+    localStorage.setItem('darkMode', String(darkMode));
   }, [darkMode]);
 
   return [darkMode, setDarkMode];
-};
-
-export default useDarkMode;
+}
