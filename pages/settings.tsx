@@ -4,7 +4,8 @@ import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import useDarkMode from '@/components/useDarkMode';
-import useTextSize from '@/components/useTextSize'; // <-- import here
+import useTextSize from '@/components/useTextSize';
+import useHighContrast from '@/components/useHighContrast'; // new import
 
 export default function Settings() {
   const { t, i18n } = useTranslation('common');
@@ -12,7 +13,8 @@ export default function Settings() {
 
   const [darkMode, setDarkMode] = useDarkMode();
   const [language, setLanguage] = useState(i18n.language);
-  const [textSize, setTextSize] = useTextSize(); // use text size hook
+  const [textSize, setTextSize] = useTextSize();
+  const [highContrast, toggleHighContrast] = useHighContrast(); // new hook
 
   // Sync language on mount
   useEffect(() => {
@@ -27,6 +29,7 @@ export default function Settings() {
     localStorage.setItem('darkMode', darkMode.toString());
     localStorage.setItem('language', language);
     localStorage.setItem('textSize', textSize);
+    localStorage.setItem('highContrast', highContrast.toString());
     i18n.changeLanguage(language);
     alert(t('save')?.toString() || 'Saved');
   };
@@ -47,7 +50,8 @@ export default function Settings() {
   return (
     <div
       className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}
-      data-text-size={textSize} // useful for global CSS styling
+      data-text-size={textSize}
+      data-contrast={highContrast ? 'high' : undefined} // apply high contrast attribute
     >
       <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
         <div className="flex items-center space-x-3">
@@ -108,6 +112,18 @@ export default function Settings() {
               <option value="medium">{t('medium') || 'Medium'}</option>
               <option value="large">{t('large') || 'Large'}</option>
             </select>
+          </label>
+
+          {/* New High Contrast toggle */}
+          <label className="flex items-center space-x-4 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={highContrast}
+              onChange={toggleHighContrast}
+              className="form-checkbox h-5 w-5 text-yellow-400"
+              aria-checked={highContrast}
+            />
+            <span>{t('highContrast') || 'High Contrast Mode'}</span>
           </label>
 
           <button
