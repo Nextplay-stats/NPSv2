@@ -1,8 +1,8 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/router';
 import DropdownMenu from '@/components/DropdownMenu';
 import { useMsal } from '@azure/msal-react';
-import { ThemeContext } from '@/context/ThemeContext';
+import useDarkMode from '@/components/useDarkMode';
 
 const faqs = [
   {
@@ -45,8 +45,8 @@ const faqs = [
 
 export default function Help() {
   const router = useRouter();
-  const { darkMode } = useContext(ThemeContext);
   const { instance } = useMsal();
+  const [darkMode] = useDarkMode();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [newQuestion, setNewQuestion] = useState('');
