@@ -1,88 +1,81 @@
+// pages/help.tsx
 import { useState } from 'react';
+import { useRouter } from 'next/router';
+import DropdownMenu from '@/components/DropdownMenu';
+import useDarkMode from '@/hooks/useDarkMode';
 
 const faqs = [
-  {
-    question: 'How do I reset my password?',
-    answer: 'You can reset your password via the Microsoft login page by clicking "Forgot password?".',
-  },
-  {
-    question: 'Why can’t I see my team’s stats?',
-    answer: 'Make sure your role is Coach, NBL, or Admin to access team statistics.',
-  },
-  {
-    question: 'How do I log out?',
-    answer: 'Click on the "Account" dropdown in the header and select "Logout".',
-  },
-  {
-    question: 'What does the Player Stats report show?',
-    answer: 'It provides detailed performance metrics for individual players.',
-  },
+  { question: 'How do I reset my password?', answer: 'Please contact your admin for a reset link.' },
+  { question: 'How do I submit a player stat?', answer: 'Navigate to the Player Stats report and fill in the form.' },
+  { question: 'Why can’t I access the NBL Overview?', answer: 'Access depends on your role. Contact your admin.' },
 ];
 
-export default function HelpPage() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [submittedQuestion, setSubmittedQuestion] = useState('');
-  const [confirmation, setConfirmation] = useState('');
+export default function Help() {
+  const router = useRouter();
+  const { darkMode, setDarkMode } = useDarkMode();
+  const [newQuestion, setNewQuestion] = useState('');
 
-  const filteredFaqs = faqs.filter((faq) =>
-    faq.question.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const handleQuestionSubmit = () => {
-    if (!submittedQuestion.trim()) return;
-    console.log('Submitted question:', submittedQuestion);
-    setConfirmation('Thank you! Your question has been submitted.');
-    setSubmittedQuestion('');
-    setTimeout(() => setConfirmation(''), 5000);
+  const handleSend = () => {
+    alert(`Question submitted: ${newQuestion}`);
+    setNewQuestion('');
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f7fa] p-8 text-gray-800">
-      <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-xl p-6">
-        <h1 className="text-2xl font-bold text-[#092c48] mb-4">Help Center</h1>
-
-        {/* Search bar */}
-        <input
-          type="text"
-          placeholder="Search FAQs..."
-          className="w-full p-2 border border-gray-300 rounded-md mb-6"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+    <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}>
+      <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
+        <div className="flex items-center space-x-3">
+          <img src="/logo.png" className="w-8 h-8" alt="Logo" />
+          <span className="text-xl font-bold">Nextplay stats</span>
+        </div>
+        <DropdownMenu
+          label="Account"
+          items={[
+            { label: 'Dashboard', onClick: () => router.push('/dashboard') },
+            { label: 'Logout', onClick: () => alert('Logout not implemented yet.') },
+          ]}
         />
+      </header>
 
-        {/* FAQ List */}
-        <div className="space-y-4 mb-10">
-          {filteredFaqs.length > 0 ? (
-            filteredFaqs.map((faq, index) => (
-              <div key={index}>
-                <h2 className="font-semibold">{faq.question}</h2>
-                <p className="text-sm text-gray-600">{faq.answer}</p>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-500">No FAQs match your search.</p>
-          )}
+      <main className="py-12 max-w-2xl mx-auto">
+        <div className="mb-6 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Help & FAQs</h1>
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={darkMode}
+              onChange={() => setDarkMode(!darkMode)}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span>Dark Mode</span>
+          </label>
         </div>
 
-        {/* Ask a question box */}
-        <div className="border-t pt-6">
-          <h2 className="text-lg font-semibold mb-2">Still need help?</h2>
+        <div className="bg-white text-black rounded-lg shadow-md p-6 mb-8 space-y-4">
+          {faqs.map((faq, index) => (
+            <div key={index} className="border-b pb-3">
+              <p className="font-semibold">{faq.question}</p>
+              <p>{faq.answer}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-white text-black rounded-lg shadow-md p-6">
+          <h2 className="text-lg font-semibold mb-2">Ask a Question</h2>
           <textarea
-            value={submittedQuestion}
-            onChange={(e) => setSubmittedQuestion(e.target.value)}
-            placeholder="Ask your question here..."
-            rows={4}
-            className="w-full p-2 border border-gray-300 rounded-md"
+            value={newQuestion}
+            onChange={(e) => setNewQuestion(e.target.value)}
+            placeholder="Type your question here..."
+            className="w-full border border-gray-300 p-2 rounded mb-4"
+            rows={3}
           />
           <button
-            onClick={handleQuestionSubmit}
-            className="mt-3 bg-[#092c48] text-white px-4 py-2 rounded-md hover:bg-[#0b3c64]"
+            onClick={handleSend}
+            className="bg-[#3e5e73] hover:bg-[#2d4a5e] text-white py-2 px-4 rounded"
           >
             Send
           </button>
-          {confirmation && <p className="text-green-600 mt-2">{confirmation}</p>}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
