@@ -11,34 +11,33 @@ export default function Settings() {
   const router = useRouter();
 
   const [darkMode, setDarkMode] = useDarkMode();
-  const [language, setLanguage] = useState(i18n.language);
+  const [language, setLanguage] = useState('en');
   const [textSize, setTextSize] = useTextSize();
-  const [landingPage, setLandingPage] = useState(
-    () => localStorage.getItem('landingPage') || '/dashboard'
-  );
+  const [landingPage, setLandingPage] = useState('/dashboard');
 
-  // Sync language on mount
+  // Sync settings on client side only
   useEffect(() => {
-    const savedLang = localStorage.getItem('language') || i18n.language;
-    if (savedLang !== i18n.language) {
-      i18n.changeLanguage(savedLang);
-      setLanguage(savedLang);
-    }
-  }, []);
+    if (typeof window !== 'undefined') {
+      const savedLang = localStorage.getItem('language');
+      if (savedLang) {
+        setLanguage(savedLang);
+        i18n.changeLanguage(savedLang);
+      }
 
-  // Sync landingPage on mount
-  useEffect(() => {
-    const savedLanding = localStorage.getItem('landingPage');
-    if (savedLanding && savedLanding !== landingPage) {
-      setLandingPage(savedLanding);
+      const savedLanding = localStorage.getItem('landingPage');
+      if (savedLanding) {
+        setLandingPage(savedLanding);
+      }
     }
   }, []);
 
   const handleSave = () => {
-    localStorage.setItem('darkMode', darkMode.toString());
-    localStorage.setItem('language', language);
-    localStorage.setItem('textSize', textSize);
-    localStorage.setItem('landingPage', landingPage);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('darkMode', darkMode.toString());
+      localStorage.setItem('language', language);
+      localStorage.setItem('textSize', textSize);
+      localStorage.setItem('landingPage', landingPage);
+    }
     i18n.changeLanguage(language);
     alert(t('save') || 'Saved');
   };
@@ -46,20 +45,26 @@ export default function Settings() {
   const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedLang = e.target.value;
     setLanguage(selectedLang);
-    localStorage.setItem('language', selectedLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('language', selectedLang);
+    }
     i18n.changeLanguage(selectedLang);
   };
 
   const handleTextSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedSize = e.target.value as 'small' | 'medium' | 'large';
     setTextSize(selectedSize);
-    localStorage.setItem('textSize', selectedSize);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('textSize', selectedSize);
+    }
   };
 
   const handleLandingPageChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedPage = e.target.value;
     setLandingPage(selectedPage);
-    localStorage.setItem('landingPage', selectedPage);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('landingPage', selectedPage);
+    }
   };
 
   return (
