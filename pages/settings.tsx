@@ -15,21 +15,24 @@ export default function Settings() {
   // Sync language on mount
   useEffect(() => {
     const savedLang = localStorage.getItem('language') || i18n.language;
-    if (savedLang !== language) {
-      setLanguage(savedLang);
+    if (savedLang !== i18n.language) {
       i18n.changeLanguage(savedLang);
+      setLanguage(savedLang);
     }
-  }, [i18n, language]);
+  }, []);
 
   const handleSave = () => {
     localStorage.setItem('darkMode', darkMode.toString());
     localStorage.setItem('language', language);
     i18n.changeLanguage(language);
-    alert(t('save'));
+    alert(t('save')?.toString() || 'Saved');
   };
 
   const handleLanguageChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setLanguage(e.target.value);
+    const selectedLang = e.target.value;
+    setLanguage(selectedLang);
+    localStorage.setItem('language', selectedLang);
+    i18n.changeLanguage(selectedLang);
   };
 
   return (
@@ -44,18 +47,18 @@ export default function Settings() {
           <span className="text-xl font-bold">Nextplay stats</span>
         </div>
         <DropdownMenu
-          label={t('account')}
+          label={t('account')?.toString() || 'Account'}
           items={[
-            { label: t('dashboard'), onClick: () => router.push('/dashboard') },
-            { label: t('account'), onClick: () => router.push('/account') },
-            { label: t('settings'), onClick: () => router.push('/settings') },
-            { label: t('help'), onClick: () => router.push('/help') },
+            { label: t('dashboard')?.toString(), onClick: () => router.push('/dashboard') },
+            { label: t('account')?.toString(), onClick: () => router.push('/account') },
+            { label: t('settings')?.toString(), onClick: () => router.push('/settings') },
+            { label: t('help')?.toString(), onClick: () => router.push('/help') },
           ]}
         />
       </header>
 
       <main className="flex flex-col items-center py-12">
-        <h1 className="text-2xl font-bold mb-6">{t('settings')}</h1>
+        <h1 className="text-2xl font-bold mb-6">{t('settings')?.toString()}</h1>
 
         <div
           className={`${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'} rounded-lg shadow-md p-6 w-full max-w-md space-y-4`}
@@ -68,11 +71,11 @@ export default function Settings() {
               className="form-checkbox h-5 w-5 text-blue-600"
               aria-checked={darkMode}
             />
-            <span>{t('darkMode')}</span>
+            <span>{t('darkMode')?.toString()}</span>
           </label>
 
           <label className="block">
-            <span>{t('language')}</span>
+            <span>{t('language')?.toString()}</span>
             <select
               value={language}
               onChange={handleLanguageChange}
@@ -81,6 +84,7 @@ export default function Settings() {
             >
               <option value="en">English</option>
               <option value="fr">Français</option>
+              <option value="es">Español</option>
             </select>
           </label>
 
@@ -89,7 +93,7 @@ export default function Settings() {
             onClick={handleSave}
             className="bg-[#3e5e73] hover:bg-[#2d4a5e] text-white font-semibold py-2 px-4 rounded"
           >
-            {t('save')}
+            {t('save')?.toString()}
           </button>
         </div>
       </main>
