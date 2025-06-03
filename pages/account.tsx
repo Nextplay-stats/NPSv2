@@ -18,6 +18,9 @@ export default function Account() {
           label="Account"
           items={[
             { label: 'Dashboard', onClick: () => router.push('/dashboard') },
+            { label: 'Settings', onClick: () => router.push('/settings') },
+            { label: 'Help', onClick: () => router.push('/help') },
+            { label: 'Logout', onClick: handleLogout },
             { label: 'Logout', onClick: () => alert('Logout not implemented yet.') },
           ]}
         />
