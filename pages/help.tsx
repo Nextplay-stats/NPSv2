@@ -44,7 +44,7 @@ const faqs = [
 
 export default function Help() {
   const router = useRouter();
-  const { darkMode } = useDarkMode();
+  const [darkMode] = useDarkMode();
   const [searchTerm, setSearchTerm] = useState('');
   const [newQuestion, setNewQuestion] = useState('');
 
