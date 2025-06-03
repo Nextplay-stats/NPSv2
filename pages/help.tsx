@@ -1,4 +1,3 @@
-// pages/help.tsx
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import DropdownMenu from '@/components/DropdownMenu';
@@ -12,12 +11,16 @@ const faqs = [
 
 export default function Help() {
   const router = useRouter();
-  const { darkMode, setDarkMode } = useDarkMode();
+  const [darkMode, setDarkMode] = useDarkMode();
   const [newQuestion, setNewQuestion] = useState('');
 
   const handleSend = () => {
     alert(`Question submitted: ${newQuestion}`);
     setNewQuestion('');
+  };
+
+  const handleLogout = () => {
+    alert('Logout not implemented yet.');
   };
 
   return (
@@ -35,7 +38,6 @@ export default function Help() {
             { label: 'Settings', onClick: () => router.push('/settings') },
             { label: 'Help', onClick: () => router.push('/help') },
             { label: 'Logout', onClick: handleLogout },
-            { label: 'Logout', onClick: () => alert('Logout not implemented yet.') },
           ]}
         />
       </header>
