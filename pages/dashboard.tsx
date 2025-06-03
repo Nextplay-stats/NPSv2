@@ -58,7 +58,6 @@ export default function Dashboard() {
       const profile = await profileRes.json();
       console.log('Graph profile:', profile);
 
-      // Use jobTitle instead of companyName or department
       const company = profile.jobTitle || 'Unknown Team';
       const logoPath = `/logos/${company.replace(/\s+/g, '').toLowerCase()}.png`;
 
@@ -66,8 +65,6 @@ export default function Dashboard() {
       setTeamLogoPath(logoPath);
     } catch (err: any) {
       console.error('Error fetching profile from Graph:', err);
-
-      // Redirect to interactive login if consent required
       if (err instanceof InteractionRequiredAuthError) {
         console.log('Consent required - redirecting for login...');
         instance.loginRedirect({
@@ -134,7 +131,12 @@ export default function Dashboard() {
           </span>
           <DropdownMenu
             label="Account"
-            items={[{ label: 'Logout', onClick: handleLogout }]}
+            items={[
+              { label: 'Account Details', onClick: () => router.push('/account') },
+              { label: 'Settings', onClick: () => router.push('/settings') },
+              { label: 'Help', onClick: () => router.push('/help') },
+              { label: 'Logout', onClick: handleLogout },
+            ]}
           />
         </div>
       </header>
