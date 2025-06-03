@@ -1,76 +1,42 @@
-import { useEffect, useState } from 'react';
-import { useMsal, useIsAuthenticated } from '@azure/msal-react';
-import { InteractionRequiredAuthError } from '@azure/msal-browser';
+// pages/account.tsx
+import DropdownMenu from '@/components/DropdownMenu';
 import { useRouter } from 'next/router';
-import Spinner from '@/components/ui/spinner';
 
-export default function AccountPage() {
-  const { instance } = useMsal();
-  const isAuthenticated = useIsAuthenticated();
+export default function Account() {
   const router = useRouter();
 
-  const [loading, setLoading] = useState(true);
-  const [profile, setProfile] = useState<any>(null);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const account = instance.getAllAccounts()[0];
-        if (!account) throw new Error('No account found');
-
-        const response = await instance.acquireTokenSilent({
-          scopes: ['User.Read'],
-          account,
-        });
-
-        const graphRes = await fetch('https://graph.microsoft.com/v1.0/me', {
-          headers: {
-            Authorization: `Bearer ${response.accessToken}`,
-          },
-        });
-
-        const data = await graphRes.json();
-        setProfile(data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching account details:', err);
-        if (err instanceof InteractionRequiredAuthError) {
-          instance.loginRedirect({ scopes: ['User.Read'] });
-        }
-      }
-    };
-
-    if (!isAuthenticated) {
-      router.push('/login');
-    } else {
-      fetchProfile();
-    }
-  }, [isAuthenticated, instance, router]);
-
-  if (!isAuthenticated || loading) return <Spinner />;
+  const accountDetails = {
+    name: 'John Doe',
+    email: 'john.doe@example.com',
+    role: 'Coach',
+    team: 'Thunderhawks',
+  };
 
   return (
-    <div className="min-h-screen bg-[#f4f7fa] p-8 text-gray-800">
-      <div className="max-w-2xl mx-auto bg-white shadow-xl rounded-xl p-6">
-        <h1 className="text-2xl font-bold mb-6 text-[#092c48]">Account Details</h1>
-        <div className="space-y-4">
-          <div>
-            <strong>Name:</strong> {profile?.displayName || 'N/A'}
-          </div>
-          <div>
-            <strong>Email:</strong> {profile?.mail || profile?.userPrincipalName || 'N/A'}
-          </div>
-          <div>
-            <strong>Job Title:</strong> {profile?.jobTitle || 'N/A'}
-          </div>
-          <div>
-            <strong>Department:</strong> {profile?.department || 'N/A'}
-          </div>
-          <div>
-            <strong>ID:</strong> {profile?.id || 'N/A'}
-          </div>
+    <div className="min-h-screen bg-[#a0b8c6] text-black">
+      <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
+        <div className="flex items-center space-x-3">
+          <img src="/logo.png" className="w-8 h-8" alt="Logo" />
+          <span className="text-xl font-bold">Nextplay stats</span>
         </div>
-      </div>
+        <DropdownMenu
+          label="Account"
+          items={[
+            { label: 'Dashboard', onClick: () => router.push('/dashboard') },
+            { label: 'Logout', onClick: () => alert('Logout not implemented yet.') },
+          ]}
+        />
+      </header>
+
+      <main className="flex flex-col items-center py-12">
+        <h1 className="text-2xl font-bold mb-6">Account Details</h1>
+        <div className="bg-white text-black rounded-lg shadow-md p-6 w-full max-w-md">
+          <p className="mb-4"><strong>Name:</strong> {accountDetails.name}</p>
+          <p className="mb-4"><strong>Email:</strong> {accountDetails.email}</p>
+          <p className="mb-4"><strong>Role:</strong> {accountDetails.role}</p>
+          <p className="mb-4"><strong>Team:</strong> {accountDetails.team}</p>
+        </div>
+      </main>
     </div>
   );
 }
