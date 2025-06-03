@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Spinner from '@/components/ui/spinner';
 import DropdownMenu from '@/components/DropdownMenu';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
-import useDarkMode from '@/hooks/useDarkMode';
+import useDarkMode from '@src/hooks/useDarkMode';
 
 const reports = {
   Players: [{ id: 'playerStats', title: 'Player Stats' }],
