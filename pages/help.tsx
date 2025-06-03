@@ -11,17 +11,19 @@ const faqs = [
 
 export default function Help() {
   const router = useRouter();
-  const [darkMode, setDarkMode] = useDarkMode();
+  const [darkMode] = useDarkMode();
   const [newQuestion, setNewQuestion] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleSend = () => {
     alert(`Question submitted: ${newQuestion}`);
     setNewQuestion('');
   };
 
-  const handleLogout = () => {
-    alert('Logout not implemented yet.');
-  };
+  const filteredFaqs = faqs.filter(faq =>
+    faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}>
@@ -37,32 +39,33 @@ export default function Help() {
             { label: 'Account', onClick: () => router.push('/account') },
             { label: 'Settings', onClick: () => router.push('/settings') },
             { label: 'Help', onClick: () => router.push('/help') },
-            { label: 'Logout', onClick: handleLogout },
+            { label: 'Logout', onClick: () => alert('Logout not implemented yet.') },
           ]}
         />
       </header>
 
       <main className="py-12 max-w-2xl mx-auto">
-        <div className="mb-6 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Help & FAQs</h1>
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
-              className="form-checkbox h-5 w-5 text-blue-600"
-            />
-            <span>Dark Mode</span>
-          </label>
-        </div>
+        <h1 className="text-2xl font-bold mb-6">Help & FAQs</h1>
+
+        <input
+          type="text"
+          placeholder="Search FAQs..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full p-3 mb-6 rounded border border-gray-300 text-black"
+        />
 
         <div className="bg-white text-black rounded-lg shadow-md p-6 mb-8 space-y-4">
-          {faqs.map((faq, index) => (
-            <div key={index} className="border-b pb-3">
-              <p className="font-semibold">{faq.question}</p>
-              <p>{faq.answer}</p>
-            </div>
-          ))}
+          {filteredFaqs.length ? (
+            filteredFaqs.map((faq, index) => (
+              <div key={index} className="border-b pb-3">
+                <p className="font-semibold">{faq.question}</p>
+                <p>{faq.answer}</p>
+              </div>
+            ))
+          ) : (
+            <p>No FAQs matched your search.</p>
+          )}
         </div>
 
         <div className="bg-white text-black rounded-lg shadow-md p-6">
