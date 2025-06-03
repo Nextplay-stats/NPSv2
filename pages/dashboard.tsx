@@ -1,10 +1,11 @@
+// src/pages/dashboard.tsx
 import { useRouter } from 'next/router';
 import { useMsal, useIsAuthenticated } from '@azure/msal-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import Spinner from '@/components/ui/spinner';
 import DropdownMenu from '@/components/DropdownMenu';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
-import useDarkMode from '@/components/useDarkMode';
+import { ThemeContext } from '@/context/ThemeContext';
 
 const reports = {
   Players: [{ id: 'playerStats', title: 'Player Stats' }],
@@ -31,7 +32,7 @@ export default function Dashboard() {
   const { instance } = useMsal();
   const isAuthenticated = useIsAuthenticated();
   const router = useRouter();
-  const [darkMode] = useDarkMode();
+  const { darkMode } = useContext(ThemeContext);
 
   const [loading, setLoading] = useState(true);
   const [userGroup, setUserGroup] = useState<Group>(null);
