@@ -36,7 +36,7 @@ export default function Settings() {
     <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}>
       <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
         <div className="flex items-center space-x-3">
-          <img src="/logo.png" className="w-8 h-8" alt={t('logoAlt')} />
+          <img src="/logo.png" className="w-8 h-8" alt={t('logoAlt')?.toString() || 'Logo'} />
           <span className="text-xl font-bold">Nextplay stats</span>
         </div>
         <DropdownMenu
@@ -100,4 +100,3 @@ export async function getStaticProps({ locale }: { locale: string }) {
     },
   };
 }
-
