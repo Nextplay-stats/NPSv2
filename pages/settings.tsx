@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import useDarkMode from '@/components/useDarkMode';
+import useTextSize from '@/components/useTextSize'; // <-- import here
 
 export default function Settings() {
   const { t, i18n } = useTranslation('common');
@@ -11,6 +12,7 @@ export default function Settings() {
 
   const [darkMode, setDarkMode] = useDarkMode();
   const [language, setLanguage] = useState(i18n.language);
+  const [textSize, setTextSize] = useTextSize(); // use text size hook
 
   // Sync language on mount
   useEffect(() => {
@@ -24,6 +26,7 @@ export default function Settings() {
   const handleSave = () => {
     localStorage.setItem('darkMode', darkMode.toString());
     localStorage.setItem('language', language);
+    localStorage.setItem('textSize', textSize);
     i18n.changeLanguage(language);
     alert(t('save')?.toString() || 'Saved');
   };
@@ -35,15 +38,20 @@ export default function Settings() {
     i18n.changeLanguage(selectedLang);
   };
 
+  const handleTextSizeChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const selectedSize = e.target.value as 'small' | 'medium' | 'large';
+    setTextSize(selectedSize);
+    localStorage.setItem('textSize', selectedSize);
+  };
+
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}>
+    <div
+      className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}
+      data-text-size={textSize} // useful for global CSS styling
+    >
       <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
         <div className="flex items-center space-x-3">
-          <img
-            src="/logo.png"
-            className="w-8 h-8"
-            alt={t('logoAlt')?.toString() || 'Logo'}
-          />
+          <img src="/logo.png" className="w-8 h-8" alt={t('logoAlt')?.toString() || 'Logo'} />
           <span className="text-xl font-bold">Nextplay stats</span>
         </div>
         <DropdownMenu
@@ -85,6 +93,20 @@ export default function Settings() {
               <option value="en">English</option>
               <option value="fr">Français</option>
               <option value="es">Español</option>
+            </select>
+          </label>
+
+          <label className="block">
+            <span>{t('textSize')?.toString() || 'Text Size'}</span>
+            <select
+              value={textSize}
+              onChange={handleTextSizeChange}
+              className="mt-1 block w-full border border-gray-300 rounded p-2"
+              aria-label={t('textSize')?.toString() || 'Text Size'}
+            >
+              <option value="small">{t('small') || 'Small'}</option>
+              <option value="medium">{t('medium') || 'Medium'}</option>
+              <option value="large">{t('large') || 'Large'}</option>
             </select>
           </label>
 
