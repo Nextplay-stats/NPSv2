@@ -1,21 +1,71 @@
 // pages/settings.tsx
-import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import DropdownMenu from '@/components/DropdownMenu';
-import { useSettings } from '@/context/SettingsContext';
+import { useRouter } from 'next/router';
+import useDarkMode from '@/components/useDarkMode';
+
+type SettingsState = {
+  darkMode: boolean;
+  showPlayerNames: boolean;  // #2: Show player names in reports
+  defaultReport: string;      // #3: Default report on dashboard
+  enableExports: boolean;     // #4: Enable export options
+  emailUpdates: boolean;      // #5: Email updates toggle
+  notifyOnLogin: boolean;     // #6: Notify on login toggle
+};
+
+const SETTINGS_KEY = 'nextplay_settings';
 
 export default function Settings() {
   const router = useRouter();
-  const { settings, updateSettings } = useSettings();
+
+  // Use the global dark mode hook
+  const [darkMode, setDarkMode] = useDarkMode();
+
+  // Other settings managed locally and persisted in localStorage
+  const [settings, setSettings] = useState<SettingsState>({
+    darkMode: darkMode,
+    showPlayerNames: true,
+    defaultReport: 'playerStats',
+    enableExports: true,
+    emailUpdates: false,
+    notifyOnLogin: false,
+  });
+
+  // Load settings from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(SETTINGS_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setSettings((prev) => ({ ...prev, ...parsed }));
+      if (typeof parsed.darkMode === 'boolean') {
+        setDarkMode(parsed.darkMode);
+      }
+    }
+  }, [setDarkMode]);
+
+  // Save settings to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  }, [settings]);
+
+  // Handle individual setting changes
+  const handleChange = (key: keyof SettingsState, value: any) => {
+    if (key === 'darkMode') {
+      setDarkMode(value);
+    }
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleSave = () => {
     alert('Settings saved!');
+    // You can also trigger API calls here if needed to sync with server
   };
 
   return (
-    <div className={`min-h-screen ${settings.compactMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}>
+    <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-[#a0b8c6] text-black'}`}>
       <header className="bg-[#092c48] text-white flex justify-between items-center px-6 py-4">
         <div className="flex items-center space-x-3">
-          <img src="/logo.png" className="w-8 h-8" alt="Logo" />
+          <img src="/logo.png" alt="Logo" className="w-8 h-8" />
           <span className="text-xl font-bold">Nextplay stats</span>
         </div>
         <DropdownMenu
@@ -32,67 +82,76 @@ export default function Settings() {
 
       <main className="flex flex-col items-center py-12">
         <h1 className="text-2xl font-bold mb-6">Settings</h1>
-        <div className="bg-white text-black rounded-lg shadow-md p-6 w-full max-w-md space-y-4">
 
-          <label className="block">
-            Language:
-            <select
-              value={settings.language}
-              onChange={(e) => updateSettings({ language: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded p-2"
-            >
-              <option>English</option>
-              <option>Spanish</option>
-              <option>French</option>
-            </select>
-          </label>
-
-          <label className="block">
-            Font Size:
-            <select
-              value={settings.fontSize}
-              onChange={(e) => updateSettings({ fontSize: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded p-2"
-            >
-              <option value="small">Small</option>
-              <option value="medium">Medium</option>
-              <option value="large">Large</option>
-            </select>
-          </label>
-
-          <label className="block">
-            Default Report Page:
-            <select
-              value={settings.defaultReportPage}
-              onChange={(e) => updateSettings({ defaultReportPage: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded p-2"
-            >
-              <option>Player Stats</option>
-              <option>Team Comparison</option>
-              <option>NBL Overview</option>
-              <option>Admin Panel</option>
-            </select>
-          </label>
-
+        <div className="bg-white text-black rounded-lg shadow-md p-6 w-full max-w-md space-y-6">
+          {/* Dark Mode Toggle */}
           <label className="flex items-center space-x-4">
             <input
               type="checkbox"
-              checked={settings.compactMode}
-              onChange={(e) => updateSettings({ compactMode: e.target.checked })}
+              checked={settings.darkMode}
+              onChange={(e) => handleChange('darkMode', e.target.checked)}
               className="form-checkbox h-5 w-5 text-blue-600"
             />
-            <span>Enable Compact Mode</span>
+            <span>Enable Dark Mode</span>
           </label>
 
-          <label className="block">
-            Custom Display Name:
+          {/* Show Player Names in Reports */}
+          <label className="flex items-center space-x-4">
             <input
-              type="text"
-              value={settings.customDisplayName}
-              onChange={(e) => updateSettings({ customDisplayName: e.target.value })}
-              className="mt-1 block w-full border border-gray-300 rounded p-2"
-              placeholder="Enter display name"
+              type="checkbox"
+              checked={settings.showPlayerNames}
+              onChange={(e) => handleChange('showPlayerNames', e.target.checked)}
+              className="form-checkbox h-5 w-5 text-blue-600"
             />
+            <span>Show Player Names in Reports</span>
+          </label>
+
+          {/* Default Report Selector */}
+          <label className="block">
+            <span className="font-semibold mb-1 block">Default Dashboard Report</span>
+            <select
+              value={settings.defaultReport}
+              onChange={(e) => handleChange('defaultReport', e.target.value)}
+              className="w-full border border-gray-300 rounded p-2"
+            >
+              <option value="playerStats">Player Stats</option>
+              <option value="teamComparison">Team Comparison</option>
+              <option value="nblOverview">NBL Overview</option>
+              <option value="adminPanel">Admin Panel</option>
+            </select>
+          </label>
+
+          {/* Enable Export Options */}
+          <label className="flex items-center space-x-4">
+            <input
+              type="checkbox"
+              checked={settings.enableExports}
+              onChange={(e) => handleChange('enableExports', e.target.checked)}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span>Enable Export Options on Tables</span>
+          </label>
+
+          {/* Email Updates */}
+          <label className="flex items-center space-x-4">
+            <input
+              type="checkbox"
+              checked={settings.emailUpdates}
+              onChange={(e) => handleChange('emailUpdates', e.target.checked)}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span>Receive Email Updates</span>
+          </label>
+
+          {/* Notify on Login */}
+          <label className="flex items-center space-x-4">
+            <input
+              type="checkbox"
+              checked={settings.notifyOnLogin}
+              onChange={(e) => handleChange('notifyOnLogin', e.target.checked)}
+              className="form-checkbox h-5 w-5 text-blue-600"
+            />
+            <span>Notify Me on Login</span>
           </label>
 
           <button
