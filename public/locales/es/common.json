@@ -1,0 +1,11 @@
+{
+  "welcome": "Bienvenido",
+  "logout": "Cerrar sesión",
+  "settings": "Configuración",
+  "help": "Ayuda",
+  "dashboard": "Panel",
+  "account": "Cuenta",
+  "darkMode": "Modo oscuro",
+  "saveSettings": "Guardar configuración"
+  // Add more translations matching your app keys
+}
