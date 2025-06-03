@@ -4,25 +4,75 @@ import DropdownMenu from '@/components/DropdownMenu';
 import useDarkMode from '@/components/useDarkMode';
 
 const faqs = [
-  { question: 'How do I reset my password?', answer: 'Please contact your admin for a reset link.' },
-  { question: 'How do I submit a player stat?', answer: 'Navigate to the Player Stats report and fill in the form.' },
-  { question: 'Why can’t I access the NBL Overview?', answer: 'Access depends on your role. Contact your admin.' },
+  {
+    question: 'How do I reset my password?',
+    answer: 'External authentication (e.g. Microsoft login) requires you to go through their process of forgetting a password. To do this, click “Forgot my password” during the login process.',
+  },
+  {
+    question: 'How do I switch between dark and light mode?',
+    answer: 'You can toggle dark mode in the Settings page. Your preference will be saved across sessions.',
+  },
+  {
+    question: 'How do I access different reports?',
+    answer: 'Reports are available from the Dashboard Page based on your role. Just click on a report to open it.',
+  },
+  {
+    question: 'Can I export player stats?',
+    answer: 'Exporting is available on some of our tables. To do this, hover over the table, find the three dots button. Click it and select export data. A pop up will come up and go through the process to download the data.',
+  },
+  {
+    question: 'How do I update my account details?',
+    answer: 'Account information (name, team, role) is currently managed by Nextplaystats@outlook.com. For changes, please send us an email.',
+  },
+  {
+    question: 'How do I log out of my account?',
+    answer: 'Use the Logout option in the dropdown menu in the top-right corner of any page.',
+  },
+  {
+    question: 'Why do I see “Unknown Team” under my name?',
+    answer: 'This means your Microsoft profile does not include a job title or team assignment. Contact nextplaystats@outlook.com so we can update your profile in Microsoft 365.',
+  },
+  {
+    question: 'What do I do if a report page shows an error or is blank?',
+    answer: 'Try refreshing the page or logging out and back in. If the problem persists, contact nextplaystats@outlook.com with a screenshot and a description of the issue.',
+  },
+  {
+    question: 'How do I submit feedback or ask for a feature?',
+    answer: 'Use the “Ask a Question” box on this page or email support at nextplaystats@outlook.com.',
+  },
 ];
 
 export default function Help() {
   const router = useRouter();
-  const [darkMode] = useDarkMode();
-  const [newQuestion, setNewQuestion] = useState('');
+  const { darkMode } = useDarkMode();
   const [searchTerm, setSearchTerm] = useState('');
+  const [newQuestion, setNewQuestion] = useState('');
 
-  const handleSend = () => {
-    alert(`Question submitted: ${newQuestion}`);
-    setNewQuestion('');
+  const handleSend = async () => {
+    if (!newQuestion.trim()) return;
+    try {
+      const res = await fetch('/api/ask-question', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: newQuestion }),
+      });
+
+      if (res.ok) {
+        alert('Your question has been emailed to support!');
+        setNewQuestion('');
+      } else {
+        alert('Failed to send your question. Please try again.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('An error occurred while sending your question.');
+    }
   };
 
-  const filteredFaqs = faqs.filter(faq =>
-    faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredFaqs = faqs.filter(
+    (faq) =>
+      faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -39,7 +89,7 @@ export default function Help() {
             { label: 'Account', onClick: () => router.push('/account') },
             { label: 'Settings', onClick: () => router.push('/settings') },
             { label: 'Help', onClick: () => router.push('/help') },
-            { label: 'Logout', onClick: () => alert('Logout not implemented yet.') },
+            { label: 'Logout', onClick: () => router.push('/api/auth/logout') },
           ]}
         />
       </header>
@@ -52,11 +102,11 @@ export default function Help() {
           placeholder="Search FAQs..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full p-3 mb-6 rounded border border-gray-300 text-black"
+          className="w-full mb-6 px-4 py-2 rounded border border-gray-300 text-black"
         />
 
         <div className="bg-white text-black rounded-lg shadow-md p-6 mb-8 space-y-4">
-          {filteredFaqs.length ? (
+          {filteredFaqs.length > 0 ? (
             filteredFaqs.map((faq, index) => (
               <div key={index} className="border-b pb-3">
                 <p className="font-semibold">{faq.question}</p>
@@ -64,7 +114,7 @@ export default function Help() {
               </div>
             ))
           ) : (
-            <p>No FAQs matched your search.</p>
+            <p>No matching FAQs found.</p>
           )}
         </div>
 
