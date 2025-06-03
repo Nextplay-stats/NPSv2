@@ -3,23 +3,23 @@ import DropdownMenu from '@/components/DropdownMenu';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import useDarkMode from '@/components/useDarkMode';  // <-- import your hook
 
 export default function Settings() {
   const { t, i18n } = useTranslation('common');
-  const [darkMode, setDarkMode] = useState(false);
-  const [language, setLanguage] = useState(i18n.language);
   const router = useRouter();
 
+  const [darkMode, setDarkMode] = useDarkMode();  // <-- use hook for dark mode
+  const [language, setLanguage] = useState(i18n.language);
+
   useEffect(() => {
-    // Load saved settings on mount
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
     const savedLang = localStorage.getItem('language') || i18n.language;
-    setDarkMode(savedDarkMode);
     setLanguage(savedLang);
     if (savedLang !== i18n.language) i18n.changeLanguage(savedLang);
   }, [i18n]);
 
   const handleSave = () => {
+    // Save dark mode via hook state
     localStorage.setItem('darkMode', darkMode.toString());
     localStorage.setItem('language', language);
     i18n.changeLanguage(language);
@@ -53,7 +53,7 @@ export default function Settings() {
             <input
               type="checkbox"
               checked={darkMode}
-              onChange={() => setDarkMode(!darkMode)}
+              onChange={() => setDarkMode(!darkMode)}  // toggle via hook setter
               className="form-checkbox h-5 w-5 text-blue-600"
             />
             <span>{t('darkMode')}</span>
