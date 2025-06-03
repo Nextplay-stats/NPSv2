@@ -2,10 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base body styles */
 body {
   @apply bg-gradient-to-b from-blue-900 to-blue-600 text-white min-h-screen;
 }
 
+/* Text size styles applied via data attribute on a wrapper div */
 [data-text-size="small"] {
   font-size: 0.875rem; /* 14px */
 }
@@ -18,17 +20,18 @@ body {
   font-size: 1.125rem; /* 18px */
 }
 
-
+/* High contrast mode styles applied on body */
 body[data-contrast='high'] {
   background-color: black !important;
   color: yellow !important;
-  
-  /* Customize links, buttons, etc. for high contrast */
-  a, button {
+
+  /* Links and buttons in high contrast */
+  a,
+  button {
     color: yellow !important;
     background-color: black !important;
     border: 2px solid yellow !important;
   }
 
-  /* Add other high contrast styles as needed */
+  /* Add additional high contrast styles as needed */
 }
