@@ -9,15 +9,15 @@ import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 
 const faqs = [
-  { questionKey: 'faq.resetPasswordQuestion', answerKey: 'faq.resetPasswordAnswer' },
-  { questionKey: 'faq.darkModeQuestion', answerKey: 'faq.darkModeAnswer' },
-  { questionKey: 'faq.accessReportsQuestion', answerKey: 'faq.accessReportsAnswer' },
-  { questionKey: 'faq.exportPlayerStatsQuestion', answerKey: 'faq.exportPlayerStatsAnswer' },
-  { questionKey: 'faq.updateAccountDetailsQuestion', answerKey: 'faq.updateAccountDetailsAnswer' },
-  { questionKey: 'faq.logoutQuestion', answerKey: 'faq.logoutAnswer' },
-  { questionKey: 'faq.unknownTeamQuestion', answerKey: 'faq.unknownTeamAnswer' },
-  { questionKey: 'faq.reportErrorQuestion', answerKey: 'faq.reportErrorAnswer' },
-  { questionKey: 'faq.submitFeedbackQuestion', answerKey: 'faq.submitFeedbackAnswer' },
+  { questionKey: 'How do I reset my password?', answerKey: 'External authentication (e.g. Microsoft login) requires you to go through their process of forgetting a password.  To do this, click “Forgot my password” during the login process.' },
+  { questionKey: 'How do I switch between dark and light mode?', answerKey: 'You can toggle dark mode in the Settings page. Your preference will be saved across sessions.' },
+  { questionKey: 'How do I access different reports?', answerKey: 'Reports are available from the Dashboard Page based on your role. Just click on a report to open it.' },
+  { questionKey: 'Can I export player stats?', answerKey: 'Exporting is available on some of our tables.  To do this, hover over the table, find the three dots button.  Click it and select export data.  A pop up will come up and go through the process to download the data.' },
+  { questionKey: 'How do I update my account details?', answerKey: 'Account information (name, team, role) is currently managed by Nextplaystats@outlook.com. For changes, please send us an email.' },
+  { questionKey: 'How do I log out of my account?', answerKey: 'Use the Logout option in the dropdown menu in the top-right corner of any page.' },
+  { questionKey: 'Why do I see “Unknown Team” under my name?', answerKey: 'This means your Microsoft profile does not include a job title or team assignment. Contact nextplaystats@outlook.com so we can update your profile in Microsoft 365.' },
+  { questionKey: 'What do I do if a report page shows an error or is blank?', answerKey: 'Try refreshing the page or logging out and back in. If the problem persists, contact nextplaystats@outlook.com with a screenshot and a description of the issue.' },
+  { questionKey: 'How do I submit feedback or ask for a feature?', answerKey: 'Use the “Ask a Question” box on this page or email support at nextplaystats@outlook.com' },
 ];
 
 export default function Help() {
